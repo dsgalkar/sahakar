@@ -218,80 +218,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ],
                 ),
               ),
-              const SizedBox(height: 16),
-
-              // Demo quick switcher for SIH presentations
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: (isDark ? AppColors.darkCard : Colors.blue.shade50)
-                      .withOpacity(0.6),
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(
-                    color: isDark ? AppColors.darkBorder : Colors.blue.shade200,
-                  ),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.speed_rounded,
-                          size: 16,
-                          color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
-                        ),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Quick Evaluation Profiles (1-Tap Test):',
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w700,
-                            color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildQuickChip(
-                            label: 'User Demo',
-                            roleIndex: 0,
-                            onTap: () {
-                              _tabController.animateTo(0);
-                              _handleLogin();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: _buildQuickChip(
-                            label: 'Worker Demo',
-                            roleIndex: 1,
-                            onTap: () {
-                              _tabController.animateTo(1);
-                              _handleLogin();
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        Expanded(
-                          child: _buildQuickChip(
-                            label: 'Admin Demo',
-                            roleIndex: 2,
-                            onTap: () {
-                              _tabController.animateTo(2);
-                              _handleLogin();
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              const SizedBox(height: 24),
             ],
           ),
         ),
@@ -392,25 +319,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
             ),
           ),
         ],
-      ),
-    );
-  }
-
-  Widget _buildQuickChip({
-    required String label,
-    required int roleIndex,
-    required VoidCallback onTap,
-  }) {
-    return OutlinedButton(
-      onPressed: onTap,
-      style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      ),
-      child: Text(
-        label,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w700),
       ),
     );
   }
