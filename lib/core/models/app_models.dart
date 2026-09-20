@@ -326,3 +326,152 @@ class AppActivity {
     this.metadata,
   });
 }
+
+class AppUser {
+  final String id;
+  final String phone;
+  final String fullName;
+  final String email;
+  final UserRole role;
+  final String address;
+  final String city;
+  final String state;
+  final String postalCode;
+  final double latitude;
+  final double longitude;
+  final DateTime registeredAt;
+
+  // Worker specific fields
+  final String? trade;
+  final String? eShramUan;
+  final String? societyName;
+  final int? nsqfLevel;
+  final double? rating;
+  final int? completedJobs;
+  final bool isVerified;
+
+  // Admin specific fields
+  final String? designation;
+  final String? jurisdictionCircle;
+
+  const AppUser({
+    required this.id,
+    required this.phone,
+    required this.fullName,
+    this.email = '',
+    required this.role,
+    required this.address,
+    this.city = 'Pune',
+    this.state = 'Maharashtra',
+    this.postalCode = '411001',
+    required this.latitude,
+    required this.longitude,
+    required this.registeredAt,
+    this.trade,
+    this.eShramUan,
+    this.societyName,
+    this.nsqfLevel,
+    this.rating,
+    this.completedJobs,
+    this.isVerified = true,
+    this.designation,
+    this.jurisdictionCircle,
+  });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'phone': phone,
+      'fullName': fullName,
+      'email': email,
+      'role': role.index,
+      'address': address,
+      'city': city,
+      'state': state,
+      'postalCode': postalCode,
+      'latitude': latitude,
+      'longitude': longitude,
+      'registeredAt': registeredAt.toIso8601String(),
+      'trade': trade,
+      'eShramUan': eShramUan,
+      'societyName': societyName,
+      'nsqfLevel': nsqfLevel,
+      'rating': rating,
+      'completedJobs': completedJobs,
+      'isVerified': isVerified,
+      'designation': designation,
+      'jurisdictionCircle': jurisdictionCircle,
+    };
+  }
+
+  factory AppUser.fromJson(Map<String, dynamic> json) {
+    return AppUser(
+      id: json['id'] as String,
+      phone: json['phone'] as String,
+      fullName: json['fullName'] as String,
+      email: json['email'] as String? ?? '',
+      role: UserRole.values[json['role'] as int],
+      address: json['address'] as String,
+      city: json['city'] as String? ?? 'Pune',
+      state: json['state'] as String? ?? 'Maharashtra',
+      postalCode: json['postalCode'] as String? ?? '411001',
+      latitude: (json['latitude'] as num).toDouble(),
+      longitude: (json['longitude'] as num).toDouble(),
+      registeredAt: DateTime.parse(json['registeredAt'] as String),
+      trade: json['trade'] as String?,
+      eShramUan: json['eShramUan'] as String?,
+      societyName: json['societyName'] as String?,
+      nsqfLevel: json['nsqfLevel'] as int?,
+      rating: (json['rating'] as num?)?.toDouble(),
+      completedJobs: json['completedJobs'] as int?,
+      isVerified: json['isVerified'] as bool? ?? true,
+      designation: json['designation'] as String?,
+      jurisdictionCircle: json['jurisdictionCircle'] as String?,
+    );
+  }
+
+  AppUser copyWith({
+    String? fullName,
+    String? email,
+    UserRole? role,
+    String? address,
+    String? city,
+    String? state,
+    String? postalCode,
+    double? latitude,
+    double? longitude,
+    String? trade,
+    String? eShramUan,
+    String? societyName,
+    int? nsqfLevel,
+    double? rating,
+    int? completedJobs,
+    bool? isVerified,
+    String? designation,
+    String? jurisdictionCircle,
+  }) {
+    return AppUser(
+      id: id,
+      phone: phone,
+      fullName: fullName ?? this.fullName,
+      email: email ?? this.email,
+      role: role ?? this.role,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      postalCode: postalCode ?? this.postalCode,
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      registeredAt: registeredAt,
+      trade: trade ?? this.trade,
+      eShramUan: eShramUan ?? this.eShramUan,
+      societyName: societyName ?? this.societyName,
+      nsqfLevel: nsqfLevel ?? this.nsqfLevel,
+      rating: rating ?? this.rating,
+      completedJobs: completedJobs ?? this.completedJobs,
+      isVerified: isVerified ?? this.isVerified,
+      designation: designation ?? this.designation,
+      jurisdictionCircle: jurisdictionCircle ?? this.jurisdictionCircle,
+    );
+  }
+}

@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../models/app_models.dart';
 import '../services/location_service.dart';
 import '../services/mock_data_service.dart';
+import '../services/user_database_service.dart';
 
 // Theme mode controller (Dark / Light)
 class ThemeModeNotifier extends Notifier<ThemeMode> {
@@ -32,6 +33,64 @@ class CurrentRoleNotifier extends Notifier<UserRole> {
 }
 
 final currentRoleProvider = NotifierProvider<CurrentRoleNotifier, UserRole>(CurrentRoleNotifier.new);
+
+// Persistent Authenticated User Controller
+class CurrentUserNotifier extends Notifier<AppUser> {
+  @override
+  AppUser build() {
+    // Pre-initialize UserDatabaseService
+    UserDatabaseService.init().then((_) {
+      final saved = UserDatabaseService.getSavedSession();
+      if (saved != null) {
+        state = saved;
+        ref.read(currentRoleProvider.notifier).setRole(saved.role);
+      }
+    });
+
+    final cached = UserDatabaseService.getUserByPhone('9876543210');
+    if (cached != null) return cached;
+
+    return AppUser(
+      id: 'USR-9876543210',
+      phone: '9876543210',
+      fullName: 'Ananya Sharma',
+      email: 'ananya.sharma@sahakar.coop',
+      role: UserRole.user,
+      address: 'Chandrashekhar Agashe Road, Shaniwar Peth, Pune, Maharashtra 411001',
+      latitude: 18.5211,
+      longitude: 73.8502,
+      registeredAt: DateTime.now(),
+    );
+  }
+
+  Future<void> loginWithPhone({
+    required String phone,
+    required UserRole role,
+  }) async {
+    final user = await UserDatabaseService.authenticate(
+      phone: phone,
+      role: role,
+      defaultAddress: ref.read(userLocationProvider).address,
+      latitude: ref.read(userLocationProvider).latitude,
+      longitude: ref.read(userLocationProvider).longitude,
+    );
+    state = user;
+    ref.read(currentRoleProvider.notifier).setRole(user.role);
+  }
+
+  Future<void> register(AppUser newUser) async {
+    final saved = await UserDatabaseService.registerUser(newUser);
+    state = saved;
+    ref.read(currentRoleProvider.notifier).setRole(saved.role);
+  }
+
+  void logout() {
+    UserDatabaseService.clearSession();
+  }
+}
+
+final currentUserProvider =
+    NotifierProvider<CurrentUserNotifier, AppUser>(CurrentUserNotifier.new);
 
 // User physical / device location controller
 class UserLocationNotifier extends Notifier<UserLocation> {
@@ -307,13 +366,16 @@ class ActiveTicketsNotifier extends Notifier<List<TicketRequest>> {
     final ticketId = 'TCK-2026-${DateTime.now().millisecondsSinceEpoch % 10000}';
     final breakdown = FairPriceBreakdown.calculate(service.basePrice);
     final otp = '${1000 + (DateTime.now().millisecond * 9) % 9000}';
+    final currentUser = ref.read(currentUserProvider);
+    final customerName = currentUser.fullName.isNotEmpty ? currentUser.fullName : 'Ananya Sharma';
+    final customerPhone = '+91 ${currentUser.phone}';
 
     final newTicket = TicketRequest(
       id: ticketId,
       serviceName: service.name,
       category: service.category,
-      customerName: 'Ananya Sharma',
-      customerPhone: '+91 98711 02938',
+      customerName: customerName,
+      customerPhone: customerPhone,
       customerAddress: finalAddress,
       customerLat: finalLat,
       customerLng: finalLng,
@@ -337,7 +399,7 @@ class ActiveTicketsNotifier extends Notifier<List<TicketRequest>> {
       AppActivity(
         id: 'ACT-${DateTime.now().millisecondsSinceEpoch % 100000}',
         userRole: UserRole.user,
-        userName: 'Ananya Sharma',
+        userName: customerName,
         type: ActivityType.serviceBooked,
         title: '${service.name} Booked',
         description: 'Instant ticket $ticketId raised. Worker ${worker.name} dispatched with OTP $otp.',

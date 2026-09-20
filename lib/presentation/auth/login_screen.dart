@@ -18,7 +18,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
   late TabController _tabController;
   final TextEditingController _phoneController = TextEditingController(text: '9876543210');
   final TextEditingController _otpController = TextEditingController(text: '4829');
-  bool _otpSent = true;
 
   @override
   void initState() {
@@ -26,6 +25,24 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(() {
       if (!_tabController.indexIsChanging) {
+        final currentText = _phoneController.text.trim();
+        // Automatically switch default pre-seeded number if user hasn't entered custom number
+        if (currentText == '9876543210' ||
+            currentText == '9876543211' ||
+            currentText == '9876543212' ||
+            currentText.isEmpty) {
+          switch (_tabController.index) {
+            case 0:
+              _phoneController.text = '9876543210';
+              break;
+            case 1:
+              _phoneController.text = '9876543211';
+              break;
+            case 2:
+              _phoneController.text = '9876543212';
+              break;
+          }
+        }
         setState(() {});
       }
     });
@@ -52,9 +69,49 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     }
   }
 
-  void _handleLogin() {
-    // Set active role
-    ref.read(currentRoleProvider.notifier).setRole(_selectedRole);
+  Future<void> _handleLogin() async {
+    final phone = _phoneController.text.trim();
+    if (phone.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a valid mobile number')),
+      );
+      return;
+    }
+
+    // Authenticate using persistent database
+    await ref.read(currentUserProvider.notifier).loginWithPhone(
+      phone: phone,
+      role: _selectedRole,
+    );
+
+    if (!mounted) return;
+
+    final user = ref.read(currentUserProvider);
+
+    // Record login in activity history
+    ref.read(activityHistoryProvider.notifier).logActivity(
+      AppActivity(
+        id: 'AUTH-${DateTime.now().millisecondsSinceEpoch % 100000}',
+        userRole: user.role,
+        userName: user.fullName,
+        type: ActivityType.kycAudited,
+        title: 'User Authenticated (${user.role.label})',
+        description: 'Cooperative session established for +91 ${user.phone} (${user.fullName}).',
+        timestamp: DateTime.now(),
+        locationAddress: user.address,
+        latitude: user.latitude,
+        longitude: user.longitude,
+        status: 'Active Session',
+      ),
+    );
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: AppColors.successGreen,
+        content: Text('Welcome back, ${user.fullName}!'),
+        duration: const Duration(seconds: 1),
+      ),
+    );
 
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(builder: (context) => const AppShell()),
@@ -533,7 +590,9 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
 
                 // Submit Button
                 ElevatedButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    final cleanPhone = phoneCtrl.text.trim().replaceAll(RegExp(r'[^0-9]'), '');
+                    final phoneToUse = cleanPhone.isNotEmpty ? cleanPhone : '9876543299';
                     final registeredName = nameCtrl.text.trim().isNotEmpty
                         ? nameCtrl.text.trim()
                         : (_selectedRole == UserRole.user
@@ -542,7 +601,32 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                                 ? 'Aakash Verma'
                                 : 'Cooperative Governance Officer');
 
-                    ref.read(currentRoleProvider.notifier).setRole(_selectedRole);
+                    final newUser = AppUser(
+                      id: 'USR-$phoneToUse',
+                      phone: phoneToUse,
+                      fullName: registeredName,
+                      email: '${registeredName.toLowerCase().replaceAll(' ', '.')}@sahakar.coop',
+                      role: _selectedRole,
+                      address: addressCtrl.text.trim().isNotEmpty
+                          ? addressCtrl.text.trim()
+                          : userLocation.address,
+                      city: userLocation.city,
+                      state: userLocation.state,
+                      postalCode: userLocation.postalCode,
+                      latitude: userLocation.latitude,
+                      longitude: userLocation.longitude,
+                      registeredAt: DateTime.now(),
+                      trade: _selectedRole == UserRole.gigWorker ? tradeCtrl.text.trim() : null,
+                      eShramUan: _selectedRole == UserRole.gigWorker ? uanCtrl.text.trim() : null,
+                      societyName:
+                          _selectedRole == UserRole.gigWorker ? societyCtrl.text.trim() : null,
+                      designation:
+                          _selectedRole == UserRole.admin ? designationCtrl.text.trim() : null,
+                      isVerified: true,
+                    );
+
+                    // Save and set active session in persistent database
+                    await ref.read(currentUserProvider.notifier).register(newUser);
 
                     // Log registration activity
                     ref.read(activityHistoryProvider.notifier).logActivity(
@@ -553,20 +637,21 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                             type: ActivityType.kycAudited,
                             title: 'Account Created & Registered',
                             description:
-                                'New ${_selectedRole.label} account created with verified cooperative credentials.',
+                                'New ${_selectedRole.label} account created in local database with verified cooperative credentials.',
                             timestamp: DateTime.now(),
-                            locationAddress: userLocation.address,
-                            latitude: userLocation.latitude,
-                            longitude: userLocation.longitude,
-                            status: 'Verified',
+                            locationAddress: newUser.address,
+                            latitude: newUser.latitude,
+                            longitude: newUser.longitude,
+                            status: 'Database Saved',
                           ),
                         );
 
+                    if (!context.mounted) return;
                     Navigator.of(ctx).pop();
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         backgroundColor: AppColors.successGreen,
-                        content: Text('🎉 Welcome $registeredName! Account created successfully.'),
+                        content: Text('🎉 Welcome $registeredName! Account saved to database.'),
                         duration: const Duration(seconds: 2),
                       ),
                     );

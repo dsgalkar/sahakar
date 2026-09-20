@@ -28,7 +28,27 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
     final isOnline = ref.watch(workerOnlineStatusProvider);
     final tickets = ref.watch(activeTicketsProvider);
     final activeTicket = tickets.where((t) => t.status != TicketStatus.completed).firstOrNull;
-    final worker = MockDataService.getCooperativeWorkers().first;
+    final currentUser = ref.watch(currentUserProvider);
+    final baseWorker = MockDataService.getCooperativeWorkers().first;
+    final worker = (currentUser.role == UserRole.gigWorker)
+        ? WorkerProfile(
+            id: currentUser.id,
+            name: currentUser.fullName,
+            phone: currentUser.phone,
+            trade: currentUser.trade ?? baseWorker.trade,
+            nsqfLevel: currentUser.nsqfLevel ?? baseWorker.nsqfLevel,
+            rating: currentUser.rating ?? baseWorker.rating,
+            completedJobs: currentUser.completedJobs ?? baseWorker.completedJobs,
+            eShramUan: currentUser.eShramUan ?? baseWorker.eShramUan,
+            isKycVerified: currentUser.isVerified,
+            societyName: currentUser.societyName ?? baseWorker.societyName,
+            societyRegistrationNo: baseWorker.societyRegistrationNo,
+            currentLat: currentUser.latitude,
+            currentLng: currentUser.longitude,
+            vehicleType: baseWorker.vehicleType,
+            activeInsuranceCover: baseWorker.activeInsuranceCover,
+          )
+        : baseWorker;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),

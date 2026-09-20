@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../core/models/app_models.dart';
+import '../../../core/services/user_database_service.dart';
 import '../../../core/theme/app_theme.dart';
 
 class AdminDashboard extends ConsumerWidget {
@@ -208,7 +210,176 @@ class AdminDashboard extends ConsumerWidget {
           const SizedBox(height: 8),
           _buildDistrictAllocationBar('Noida Sector 62 / Indirapuram', 75, 51, isDark),
 
+          const SizedBox(height: 20),
+
+          // Real-time Persistent User Accounts Database Section
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Registered Cooperative Members Database',
+                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+              ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+                decoration: BoxDecoration(
+                  color: AppColors.primaryBlueLight.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(
+                  '${UserDatabaseService.getAllUsers().length} Accounts Active',
+                  style: const TextStyle(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.primaryBlueLight,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          ...UserDatabaseService.getAllUsers().map((user) {
+            Color roleColor = AppColors.primaryBlueLight;
+            IconData roleIcon = Icons.person_rounded;
+            if (user.role == UserRole.gigWorker) {
+              roleColor = AppColors.accentGoldLight;
+              roleIcon = Icons.engineering_rounded;
+            } else if (user.role == UserRole.admin) {
+              roleColor = AppColors.successGreenLight;
+              roleIcon = Icons.admin_panel_settings_rounded;
+            }
+
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: isDark ? AppColors.darkCard : Colors.white,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(
+                  color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                ),
+              ),
+              child: InkWell(
+                onTap: () => _showUserDetailsDialog(context, user, isDark),
+                borderRadius: BorderRadius.circular(10),
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: roleColor.withOpacity(0.15),
+                      child: Icon(roleIcon, color: roleColor, size: 20),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                user.fullName,
+                                style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
+                              ),
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: roleColor.withOpacity(0.15),
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Text(
+                                  user.role.label,
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    color: roleColor,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            '+91 ${user.phone} • ${user.city}, ${user.state}',
+                            style: TextStyle(
+                              fontSize: 11,
+                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            ),
+                          ),
+                          if (user.role == UserRole.gigWorker && user.trade != null)
+                            Text(
+                              '${user.trade} (${user.societyName ?? "Cooperative"})',
+                              style: const TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.accentGoldLight,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                    const Icon(Icons.chevron_right_rounded, size: 20, color: Colors.grey),
+                  ],
+                ),
+              ),
+            );
+          }),
+
           const SizedBox(height: 24),
+        ],
+      ),
+    );
+  }
+
+  void _showUserDetailsDialog(BuildContext context, AppUser user, bool isDark) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Row(
+          children: [
+            const Icon(Icons.badge_rounded, color: AppColors.primaryBlueLight),
+            const SizedBox(width: 8),
+            Text(user.fullName),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _detailRow('User ID', user.id),
+              _detailRow('Mobile', '+91 ${user.phone}'),
+              _detailRow('Email', user.email.isNotEmpty ? user.email : 'N/A'),
+              _detailRow('Role', user.role.label),
+              _detailRow('Primary Address', user.address),
+              _detailRow('GPS Pin', '${user.latitude.toStringAsFixed(4)}, ${user.longitude.toStringAsFixed(4)}'),
+              if (user.trade != null) _detailRow('Trade / Skill', user.trade!),
+              if (user.eShramUan != null) _detailRow('e-Shram UAN', user.eShramUan!),
+              if (user.societyName != null) _detailRow('Society', user.societyName!),
+              if (user.designation != null) _detailRow('Designation', user.designation!),
+              _detailRow('Registered On', user.registeredAt.toLocal().toString().split(' ').first),
+              _detailRow('KYC Audit', user.isVerified ? 'Verified & Audited' : 'Pending'),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Close'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _detailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 10, color: Colors.grey, fontWeight: FontWeight.bold)),
+          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600)),
         ],
       ),
     );

@@ -202,12 +202,14 @@ class _AppShellState extends ConsumerState<AppShell> {
     bool isDark,
     int historyIndex,
   ) {
+    final currentUser = ref.watch(currentUserProvider);
+
     return Drawer(
       backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // Drawer Header with SahakarLogo
+          // Drawer Header with SahakarLogo and User Info
           DrawerHeader(
             decoration: BoxDecoration(
               gradient: LinearGradient(
@@ -220,29 +222,49 @@ class _AppShellState extends ConsumerState<AppShell> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                SahakarLogo(
-                  size: 54,
-                  showBadgeBorder: true,
-                  isCompact: true,
-                  onTap: () {
-                    Navigator.of(context).pop();
-                    setState(() => _currentIndex = 0);
-                  },
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    SahakarLogo(
+                      size: 46,
+                      showBadgeBorder: true,
+                      isCompact: true,
+                      onTap: () {
+                        Navigator.of(context).pop();
+                        setState(() => _currentIndex = 0);
+                      },
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(
+                        color: Colors.white24,
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                      child: Text(
+                        currentUser.role.shortTag,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Sahakar : Instant Gig Support',
-                  style: TextStyle(
+                Text(
+                  currentUser.fullName,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 16,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 Text(
-                  'Active Mode: ${currentRole.label}',
+                  '${currentUser.role.label} • +91 ${currentUser.phone}',
                   style: const TextStyle(
                     color: AppColors.accentGoldLight,
-                    fontSize: 12,
+                    fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -366,8 +388,10 @@ class _AppShellState extends ConsumerState<AppShell> {
           const Divider(),
           ListTile(
             leading: const Icon(Icons.logout_rounded, color: AppColors.emergencyRedLight),
-            title: const Text('Logout / Switch Login Tab'),
+            title: const Text('Logout / Switch Account'),
+            subtitle: Text('Signed in as ${currentUser.fullName}'),
             onTap: () {
+              ref.read(currentUserProvider.notifier).logout();
               Navigator.of(context).pushAndRemoveUntil(
                 MaterialPageRoute(builder: (context) => const LoginScreen()),
                 (route) => false,
