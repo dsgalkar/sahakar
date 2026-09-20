@@ -295,34 +295,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-              ),
-              const SizedBox(height: 14),
-
-              // Secondary Quick Text Link
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    "New to Sahakar? ",
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: () => _showCreateAccountModal(context, isDark),
-                    child: Text(
-                      'Register Here',
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w800,
-                        color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
               const SizedBox(height: 24),
             ],
           ),
