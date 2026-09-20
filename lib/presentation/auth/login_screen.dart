@@ -295,6 +295,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
+              ),
               const SizedBox(height: 24),
             ],
           ),
