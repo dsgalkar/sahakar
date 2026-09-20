@@ -218,6 +218,54 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                   ],
                 ),
               ),
+              const SizedBox(height: 12),
+
+              // Create Account Button
+              OutlinedButton.icon(
+                onPressed: () => _showCreateAccountModal(context, isDark),
+                icon: const Icon(Icons.person_add_alt_1_rounded, size: 18),
+                label: Text(
+                  'Create New ${_selectedRole.label} Account',
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 14),
+                ),
+                style: OutlinedButton.styleFrom(
+                  minimumSize: const Size.fromHeight(48),
+                  side: BorderSide(
+                    color: isDark ? AppColors.primaryBlueLight : AppColors.primaryBlue,
+                    width: 1.5,
+                  ),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 14),
+
+              // Secondary Quick Text Link
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "New to Sahakar? ",
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: () => _showCreateAccountModal(context, isDark),
+                    child: Text(
+                      'Register Here',
+                      style: TextStyle(
+                        fontSize: 13,
+                        fontWeight: FontWeight.w800,
+                        color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 24),
             ],
           ),
@@ -320,6 +368,227 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           ),
         ],
       ),
+    );
+  }
+
+  void _showCreateAccountModal(BuildContext context, bool isDark) {
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController(text: _phoneController.text);
+    final userLocation = ref.read(userLocationProvider);
+    final addressCtrl = TextEditingController(text: userLocation.address);
+    final tradeCtrl = TextEditingController(text: 'Certified Electrician');
+    final uanCtrl = TextEditingController(text: '1009-8834-5512');
+    final societyCtrl = TextEditingController(text: 'Maharashtra Shramik Sahakari Sanstha');
+    final designationCtrl = TextEditingController(text: 'District Cooperative Registrar');
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: isDark ? AppColors.darkCard : Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+      ),
+      builder: (ctx) {
+        return Padding(
+          padding: EdgeInsets.only(
+            top: 20,
+            left: 20,
+            right: 20,
+            bottom: MediaQuery.of(ctx).viewInsets.bottom + 20,
+          ),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        const Icon(Icons.person_add_alt_1_rounded, color: AppColors.primaryBlueLight),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Create ${_selectedRole.label} Account',
+                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.of(ctx).pop(),
+                    ),
+                  ],
+                ),
+                const Divider(),
+                const SizedBox(height: 8),
+                Text(
+                  _selectedRole == UserRole.user
+                      ? 'Register for transparent, fair-wage instant gig support with statutory protection.'
+                      : _selectedRole == UserRole.gigWorker
+                          ? 'Join the national cooperative network with 88% direct wage pass-through & e-Shram benefits.'
+                          : 'Register as a statutory monitoring and governance administrator.',
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Name Input
+                TextField(
+                  controller: nameCtrl,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Legal Name',
+                    prefixIcon: Icon(Icons.badge_rounded),
+                    hintText: 'Enter your full name',
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Phone Input
+                TextField(
+                  controller: phoneCtrl,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Mobile Number',
+                    prefixIcon: Icon(Icons.phone_android_rounded),
+                    prefixText: '+91 ',
+                  ),
+                ),
+                const SizedBox(height: 12),
+
+                // Role-Specific Fields
+                if (_selectedRole == UserRole.user) ...[
+                  TextField(
+                    controller: addressCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Primary Address (Live Location Prefilled)',
+                      prefixIcon: Icon(Icons.location_on_rounded),
+                    ),
+                  ),
+                ] else if (_selectedRole == UserRole.gigWorker) ...[
+                  TextField(
+                    controller: tradeCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Primary Trade & Skill',
+                      prefixIcon: Icon(Icons.construction_rounded),
+                      hintText: 'Electrician, Plumber, Carpenter...',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: uanCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'e-Shram UAN / DigiLocker ID',
+                      prefixIcon: Icon(Icons.verified_user_rounded),
+                      hintText: '12-digit e-Shram UAN',
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextField(
+                    controller: societyCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Endorsing Cooperative Society',
+                      prefixIcon: Icon(Icons.apartment_rounded),
+                    ),
+                  ),
+                ] else if (_selectedRole == UserRole.admin) ...[
+                  TextField(
+                    controller: designationCtrl,
+                    decoration: const InputDecoration(
+                      labelText: 'Administrative Designation',
+                      prefixIcon: Icon(Icons.shield_rounded),
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 16),
+
+                // Statutory notice
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: (isDark ? AppColors.darkSurface : Colors.grey.shade100),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(Icons.lock_rounded, size: 16, color: AppColors.successGreenLight),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Protected under Code on Social Security 2020. Data safeguarded by cooperative federations.',
+                          style: TextStyle(
+                            fontSize: 10,
+                            fontWeight: FontWeight.w600,
+                            color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 16),
+
+                // Submit Button
+                ElevatedButton(
+                  onPressed: () {
+                    final registeredName = nameCtrl.text.trim().isNotEmpty
+                        ? nameCtrl.text.trim()
+                        : (_selectedRole == UserRole.user
+                            ? 'Ananya Sharma'
+                            : _selectedRole == UserRole.gigWorker
+                                ? 'Aakash Verma'
+                                : 'Cooperative Governance Officer');
+
+                    ref.read(currentRoleProvider.notifier).setRole(_selectedRole);
+
+                    // Log registration activity
+                    ref.read(activityHistoryProvider.notifier).logActivity(
+                          AppActivity(
+                            id: 'REG-${DateTime.now().millisecondsSinceEpoch % 100000}',
+                            userRole: _selectedRole,
+                            userName: registeredName,
+                            type: ActivityType.kycAudited,
+                            title: 'Account Created & Registered',
+                            description:
+                                'New ${_selectedRole.label} account created with verified cooperative credentials.',
+                            timestamp: DateTime.now(),
+                            locationAddress: userLocation.address,
+                            latitude: userLocation.latitude,
+                            longitude: userLocation.longitude,
+                            status: 'Verified',
+                          ),
+                        );
+
+                    Navigator.of(ctx).pop();
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        backgroundColor: AppColors.successGreen,
+                        content: Text('🎉 Welcome $registeredName! Account created successfully.'),
+                        duration: const Duration(seconds: 2),
+                      ),
+                    );
+
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const AppShell()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    minimumSize: const Size.fromHeight(50),
+                    backgroundColor: isDark ? AppColors.primaryBlueLight : AppColors.primaryBlue,
+                  ),
+                  child: Text(
+                    'Complete Registration as ${_selectedRole.label}',
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 }
