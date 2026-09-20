@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/services/user_database_service.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/creative_avatar.dart';
+import '../../../core/widgets/futuristic_widgets.dart';
 
 class AdminDashboard extends ConsumerWidget {
   const AdminDashboard({super.key});
@@ -16,20 +18,16 @@ class AdminDashboard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Apex Federation Banner
+          // Apex Federation Futuristic Banner
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(18),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [const Color(0xFF132042), const Color(0xFF1E3A8A)]
-                    : [AppColors.primaryBlue, const Color(0xFF1D4ED8)],
-              ),
-              borderRadius: BorderRadius.circular(16),
+              gradient: isDark ? AppColors.cyberPurpleGradient : AppColors.cyberCyanGradient,
+              borderRadius: BorderRadius.circular(20),
               boxShadow: [
                 BoxShadow(
-                  color: AppColors.primaryBlue.withOpacity(0.2),
-                  blurRadius: 10,
+                  color: AppColors.neonPurple.withValues(alpha: isDark ? 0.35 : 0.15),
+                  blurRadius: 18,
                   offset: const Offset(0, 4),
                 ),
               ],
@@ -45,50 +43,41 @@ class AdminDashboard extends ConsumerWidget {
                       style: TextStyle(
                         color: Colors.white70,
                         fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 1.1,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
                       ),
                     ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: AppColors.successGreenLight,
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: const Text(
-                        'AUDIT VERIFIED',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
+                    const NeonPill(
+                      text: 'AUDIT VERIFIED',
+                      color: AppColors.neonGreen,
+                      isFilled: true,
                     ),
                   ],
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
                 const Text(
                   'Governance & Social Security Ledger',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 18,
+                    fontSize: 19,
                     fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
                   ),
                 ),
                 const SizedBox(height: 4),
                 const Text(
-                  'Central registry for 42 affiliated primary societies & 3,280 verified members.',
+                  'Central cryptographic registry for 42 affiliated primary societies & 3,280 verified KarmaYogis.',
                   style: TextStyle(color: Colors.white70, fontSize: 12),
                 ),
               ],
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 18),
 
           // Statutory Social Security Fund (Sec 114) KPI Section
           const Text(
             'Statutory Social Security Fund (Sec 114)',
-            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w800),
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.w900),
           ),
           const SizedBox(height: 4),
           Text(
@@ -98,27 +87,27 @@ class AdminDashboard extends ConsumerWidget {
               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
           ),
-          const SizedBox(height: 10),
+          const SizedBox(height: 12),
 
           Row(
             children: [
-              Expanded(
-                child: _buildMetricTile(
+              const Expanded(
+                child: TelemetryCard(
                   label: 'Turnover Corpus (1.5%)',
                   value: '₹8,42,190',
+                  subtext: 'Accumulated Sec 114',
                   icon: Icons.account_balance_rounded,
-                  color: AppColors.accentGoldLight,
-                  isDark: isDark,
+                  color: AppColors.neonGold,
                 ),
               ),
               const SizedBox(width: 10),
-              Expanded(
-                child: _buildMetricTile(
+              const Expanded(
+                child: TelemetryCard(
                   label: 'Welfare Claims Paid',
                   value: '₹1,24,000',
+                  subtext: 'Direct Pass-Through',
                   icon: Icons.health_and_safety_rounded,
-                  color: AppColors.successGreenLight,
-                  isDark: isDark,
+                  color: AppColors.neonGreen,
                 ),
               ),
             ],
@@ -126,23 +115,23 @@ class AdminDashboard extends ConsumerWidget {
           const SizedBox(height: 10),
           Row(
             children: [
-              Expanded(
-                child: _buildMetricTile(
+              const Expanded(
+                child: TelemetryCard(
                   label: 'Insured Gig Members',
                   value: '3,280',
+                  subtext: 'Active Cooperative Base',
                   icon: Icons.people_alt_rounded,
-                  color: AppColors.primaryBlueLight,
-                  isDark: isDark,
+                  color: AppColors.neonCyan,
                 ),
               ),
               const SizedBox(width: 10),
-              Expanded(
-                child: _buildMetricTile(
+              const Expanded(
+                child: TelemetryCard(
                   label: 'e-Shram Seed Ratio',
                   value: '99.4%',
+                  subtext: 'Aadhaar Biometric Linked',
                   icon: Icons.check_circle_outline_rounded,
-                  color: Colors.tealAccent.shade700,
-                  isDark: isDark,
+                  color: AppColors.neonPurple,
                 ),
               ),
             ],
@@ -240,34 +229,34 @@ class AdminDashboard extends ConsumerWidget {
           const SizedBox(height: 10),
 
           ...UserDatabaseService.getAllUsers().map((user) {
-            Color roleColor = AppColors.primaryBlueLight;
-            IconData roleIcon = Icons.person_rounded;
-            if (user.role == UserRole.gigWorker) {
-              roleColor = AppColors.accentGoldLight;
-              roleIcon = Icons.engineering_rounded;
-            } else if (user.role == UserRole.admin) {
-              roleColor = AppColors.successGreenLight;
-              roleIcon = Icons.admin_panel_settings_rounded;
-            }
+            final roleColor = user.role == UserRole.admin
+                ? AppColors.neonPurple
+                : (user.role == UserRole.gigWorker
+                    ? AppColors.neonGold
+                    : AppColors.neonCyan);
 
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkCard : Colors.white,
-                borderRadius: BorderRadius.circular(14),
+                borderRadius: BorderRadius.circular(16),
                 border: Border.all(
                   color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                  width: 1.2,
                 ),
               ),
               child: InkWell(
                 onTap: () => _showUserDetailsDialog(context, user, isDark),
-                borderRadius: BorderRadius.circular(10),
+                borderRadius: BorderRadius.circular(12),
                 child: Row(
                   children: [
-                    CircleAvatar(
-                      backgroundColor: roleColor.withOpacity(0.15),
-                      child: Icon(roleIcon, color: roleColor, size: 20),
+                    CreativeAvatar(
+                      size: 42,
+                      role: user.role,
+                      tradeName: user.trade,
+                      name: user.fullName,
+                      isOnline: true,
                     ),
                     const SizedBox(width: 12),
                     Expanded(
@@ -281,20 +270,10 @@ class AdminDashboard extends ConsumerWidget {
                                 style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14),
                               ),
                               const SizedBox(width: 6),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1.5),
-                                decoration: BoxDecoration(
-                                  color: roleColor.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Text(
-                                  user.role.label,
-                                  style: TextStyle(
-                                    fontSize: 9,
-                                    fontWeight: FontWeight.w800,
-                                    color: roleColor,
-                                  ),
-                                ),
+                              NeonPill(
+                                text: user.role.label,
+                                color: roleColor,
+                                isFilled: true,
                               ),
                             ],
                           ),
@@ -385,43 +364,6 @@ class AdminDashboard extends ConsumerWidget {
     );
   }
 
-  Widget _buildMetricTile({
-    required String label,
-    required String value,
-    required IconData icon,
-    required Color color,
-    required bool isDark,
-  }) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, size: 22, color: color),
-          const SizedBox(height: 8),
-          Text(
-            value,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: color),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildKycCard({
     required String name,
     required String trade,
@@ -434,60 +376,70 @@ class AdminDashboard extends ConsumerWidget {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: isDark ? AppColors.darkBorder : AppColors.lightBorder),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1.2,
+        ),
       ),
-      child: Column(
+      child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                decoration: BoxDecoration(
-                  color: AppColors.successGreenLight.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(4),
+          CreativeAvatar(
+            size: 44,
+            tradeName: trade,
+            name: name,
+            isOnline: true,
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 14)),
+                    NeonPill(
+                      text: aadhaarStatus,
+                      color: AppColors.neonGreen,
+                      isFilled: true,
+                    ),
+                  ],
                 ),
-                child: Text(
-                  aadhaarStatus,
-                  style: const TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.successGreenLight,
+                const SizedBox(height: 2),
+                Text(
+                  '$trade • $society',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                 ),
-              ),
-            ],
-          ),
-          Text(
-            '$trade • $society',
-            style: TextStyle(
-              fontSize: 11,
-              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Icon(Icons.shield_outlined, size: 14, color: AppColors.primaryBlueLight),
-              const SizedBox(width: 4),
-              Text(
-                policeStatus,
-                style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-              ),
-              const Spacer(),
-              ElevatedButton(
-                onPressed: () {},
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.successGreenLight,
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  minimumSize: const Size(60, 32),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    const Icon(Icons.shield_outlined, size: 14, color: AppColors.neonCyan),
+                    const SizedBox(width: 4),
+                    Text(
+                      policeStatus,
+                      style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                    ),
+                    const Spacer(),
+                    ElevatedButton(
+                      onPressed: () {},
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.neonGreen,
+                        foregroundColor: const Color(0xFF07090E),
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                        minimumSize: const Size(60, 32),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      child: const Text('Approve', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900)),
+                    ),
+                  ],
                 ),
-                child: const Text('Approve', style: TextStyle(fontSize: 12)),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),

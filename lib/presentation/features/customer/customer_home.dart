@@ -4,6 +4,8 @@ import '../../../core/models/app_models.dart';
 import '../../../core/services/mock_data_service.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/creative_avatar.dart';
+import '../../../core/widgets/futuristic_widgets.dart';
 import 'live_tracking_screen.dart';
 
 class CustomerHomeScreen extends ConsumerStatefulWidget {
@@ -56,56 +58,45 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Personalized Member Greeting
+          // Personalized Member Greeting with Creative Avatar
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Namaste, ${currentUser.fullName} 🙏',
-                    style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    'Cooperative member • +91 ${currentUser.phone}',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w500,
-                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                    ),
-                  ),
-                ],
+              CreativeAvatar(
+                size: 46,
+                role: UserRole.user,
+                name: currentUser.fullName,
+                isOnline: true,
               ),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.successGreenLight.withOpacity(0.15),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: AppColors.successGreenLight.withOpacity(0.3),
-                  ),
-                ),
-                child: const Row(
-                  mainAxisSize: MainAxisSize.min,
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Icons.verified_user_rounded, size: 14, color: AppColors.successGreenLight),
-                    SizedBox(width: 4),
                     Text(
-                      'VERIFIED',
+                      'Namaste, ${currentUser.fullName} 🙏',
+                      style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w900),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Cooperative Member • Grid Connected',
                       style: TextStyle(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: AppColors.successGreenLight,
+                        fontSize: 11,
+                        fontWeight: FontWeight.w500,
+                        color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                       ),
                     ),
                   ],
                 ),
               ),
+              const NeonPill(
+                text: 'VERIFIED',
+                icon: Icons.verified_user_rounded,
+                color: AppColors.neonGreen,
+                isFilled: true,
+              ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 14),
 
           // Live Device Location Status Card (Real GPS / Physical Address)
           _buildLiveLocationCard(context, ref, isDark),
@@ -325,50 +316,72 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(
         color: _isEmergencyMode
-            ? (isDark ? const Color(0xFF3B1214) : Colors.red.shade50)
+            ? (isDark ? const Color(0xFF280B14) : const Color(0xFFFFF1F2))
             : (isDark ? AppColors.darkCard : Colors.white),
-        borderRadius: BorderRadius.circular(16),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
           color: _isEmergencyMode
-              ? AppColors.emergencyRedLight
+              ? AppColors.neonCoral
               : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
-          width: _isEmergencyMode ? 1.5 : 1,
+          width: _isEmergencyMode ? 1.8 : 1.2,
         ),
+        boxShadow: [
+          if (_isEmergencyMode)
+            BoxShadow(
+              color: AppColors.neonCoral.withValues(alpha: isDark ? 0.35 : 0.2),
+              blurRadius: 18,
+              spreadRadius: 1,
+            ),
+        ],
       ),
       child: Row(
         children: [
           Container(
             padding: const EdgeInsets.all(10),
             decoration: BoxDecoration(
-              color: (_isEmergencyMode ? AppColors.emergencyRed : AppColors.accentGold)
-                  .withOpacity(0.15),
+              color: (_isEmergencyMode ? AppColors.neonCoral : AppColors.neonGold)
+                  .withValues(alpha: 0.18),
               shape: BoxShape.circle,
             ),
             child: Icon(
-              _isEmergencyMode ? Icons.warning_rounded : Icons.flash_on_rounded,
-              color: _isEmergencyMode ? AppColors.emergencyRedLight : AppColors.accentGold,
-              size: 22,
+              _isEmergencyMode ? Icons.emergency_rounded : Icons.flash_on_rounded,
+              color: _isEmergencyMode ? AppColors.neonCoral : AppColors.neonGold,
+              size: 24,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: 14),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  _isEmergencyMode ? 'EMERGENCY MODE ACTIVE' : 'Instant Priority Dispatch',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w800,
-                    color: _isEmergencyMode
-                        ? AppColors.emergencyRedLight
-                        : (isDark ? Colors.white : AppColors.lightTextPrimary),
-                  ),
+                Row(
+                  children: [
+                    Text(
+                      _isEmergencyMode ? 'EMERGENCY GRID ACTIVE' : 'Instant Priority Dispatch',
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.3,
+                        color: _isEmergencyMode
+                            ? AppColors.neonCoral
+                            : (isDark ? Colors.white : AppColors.lightTextPrimary),
+                      ),
+                    ),
+                    if (_isEmergencyMode) ...[
+                      const SizedBox(width: 6),
+                      const NeonPill(
+                        text: '<5 MIN',
+                        color: AppColors.neonCoral,
+                        isFilled: true,
+                      ),
+                    ],
+                  ],
                 ),
+                const SizedBox(height: 2),
                 Text(
                   _isEmergencyMode
-                      ? 'Guaranteed <5 min worker matching SLA'
-                      : 'Toggle for instant breakdown & short circuit support',
+                      ? 'Guaranteed <5 min worker matching SLA & rapid dispatch'
+                      : 'Toggle for instant short-circuit, gas leakage & pipe burst rescue',
                   style: TextStyle(
                     fontSize: 11,
                     color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
@@ -379,7 +392,8 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
           ),
           Switch(
             value: _isEmergencyMode,
-            activeColor: AppColors.emergencyRedLight,
+            activeColor: AppColors.neonCoral,
+            activeTrackColor: AppColors.neonCoral.withValues(alpha: 0.35),
             onChanged: (val) {
               setState(() {
                 _isEmergencyMode = val;
@@ -392,29 +406,22 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
   }
 
   Widget _buildServiceCard(BuildContext context, GigService service, bool isDark) {
-    IconData iconData = Icons.construction_rounded;
-    switch (service.category) {
-      case 'Electrician':
-        iconData = Icons.bolt_rounded;
-        break;
-      case 'Plumber':
-        iconData = Icons.water_drop_rounded;
-        break;
-      case 'Appliance':
-        iconData = Icons.ac_unit_rounded;
-        break;
-      case 'Caregiver':
-        iconData = Icons.elderly_rounded;
-        break;
-      case 'Cleaning':
-        iconData = Icons.cleaning_services_rounded;
-        break;
-      case 'Carpenter':
-        iconData = Icons.handyman_rounded;
-        break;
-    }
-
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(
+          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+          width: 1.2,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
+          ),
+        ],
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -422,30 +429,28 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
           children: [
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(10),
-                  decoration: BoxDecoration(
-                    color: AppColors.primaryBlueLight.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Icon(iconData, color: AppColors.primaryBlueLight, size: 24),
+                CreativeAvatar(
+                  size: 50,
+                  tradeName: service.category,
+                  isOnline: true,
+                  isVerified: true,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
                         service.name,
-                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                        style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
                       ),
                       const SizedBox(height: 2),
                       Row(
                         children: [
                           Icon(
-                            Icons.apartment_rounded,
+                            Icons.hub_rounded,
                             size: 13,
-                            color: isDark ? AppColors.accentGoldLight : AppColors.accentGold,
+                            color: isDark ? AppColors.neonCyan : AppColors.neonCyanDark,
                           ),
                           const SizedBox(width: 4),
                           Expanded(
@@ -456,7 +461,7 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: isDark ? AppColors.accentGoldLight : AppColors.accentGold,
+                                color: isDark ? AppColors.neonCyan : AppColors.neonCyanDark,
                               ),
                             ),
                           ),
@@ -468,18 +473,17 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(
-                      '₹${service.basePrice.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w900,
-                        color: isDark ? Colors.white : AppColors.primaryBlue,
-                      ),
+                    NeonPill(
+                      text: '₹${service.basePrice.toStringAsFixed(0)}',
+                      color: AppColors.neonCyan,
+                      isFilled: true,
                     ),
+                    const SizedBox(height: 4),
                     Text(
                       '~${service.estMinutes} mins',
                       style: TextStyle(
                         fontSize: 11,
+                        fontWeight: FontWeight.w600,
                         color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                       ),
                     ),
@@ -487,46 +491,41 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             Text(
               service.description,
               style: TextStyle(
                 fontSize: 12,
                 color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                height: 1.3,
+                height: 1.35,
               ),
             ),
             const SizedBox(height: 14),
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.successGreenLight.withOpacity(0.12),
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: const Row(
-                    children: [
-                      Icon(Icons.shield_rounded, size: 13, color: AppColors.successGreenLight),
-                      SizedBox(width: 4),
-                      Text(
-                        '88% Direct Worker Wage',
-                        style: TextStyle(
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                          color: AppColors.successGreenLight,
-                        ),
-                      ),
-                    ],
-                  ),
+                const NeonPill(
+                  text: '88% DIRECT PASS-THROUGH',
+                  icon: Icons.shield_rounded,
+                  color: AppColors.neonGreen,
+                  isFilled: false,
                 ),
                 const Spacer(),
                 ElevatedButton(
                   onPressed: () => _showBookingModal(context, service),
                   style: ElevatedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    backgroundColor: isDark ? AppColors.neonCyan : AppColors.lightTextPrimary,
+                    foregroundColor: isDark ? const Color(0xFF07090E) : Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 11),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
-                  child: const Text('Book Instant Gig'),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text('Dispatch', style: TextStyle(fontWeight: FontWeight.w900, fontSize: 13)),
+                      SizedBox(width: 4),
+                      Icon(Icons.arrow_forward_rounded, size: 14),
+                    ],
+                  ),
                 ),
               ],
             ),

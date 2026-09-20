@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/futuristic_widgets.dart';
 
 class ActivityHistoryScreen extends ConsumerStatefulWidget {
   const ActivityHistoryScreen({super.key});
@@ -121,12 +122,12 @@ class _ActivityHistoryScreenState extends ConsumerState<ActivityHistoryScreen> {
                   onSelected: (sel) {
                     if (sel) setState(() => _selectedFilter = filter);
                   },
-                  selectedColor: isDark ? AppColors.primaryBlueLight : AppColors.primaryBlue,
+                  selectedColor: isDark ? AppColors.neonCyan : AppColors.lightTextPrimary,
                   labelStyle: TextStyle(
                     color: isSelected
-                        ? Colors.white
+                        ? (isDark ? const Color(0xFF07090E) : Colors.white)
                         : (isDark ? AppColors.darkTextPrimary : AppColors.lightTextPrimary),
-                    fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
                     fontSize: 12,
                   ),
                 );
@@ -161,18 +162,14 @@ class _ActivityHistoryScreenState extends ConsumerState<ActivityHistoryScreen> {
   ) {
     return Container(
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: isDark
-              ? [const Color(0xFF132042), const Color(0xFF1E3A8A)]
-              : [AppColors.primaryBlue, const Color(0xFF2563EB)],
-        ),
-        borderRadius: BorderRadius.circular(16),
+        gradient: isDark ? AppColors.cyberCyanGradient : AppColors.cyberPurpleGradient,
+        borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.primaryBlue.withOpacity(0.2),
-            blurRadius: 10,
+            color: AppColors.neonCyan.withValues(alpha: isDark ? 0.35 : 0.15),
+            blurRadius: 16,
             offset: const Offset(0, 4),
           ),
         ],
@@ -186,38 +183,29 @@ class _ActivityHistoryScreenState extends ConsumerState<ActivityHistoryScreen> {
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(6),
-                      ),
-                      child: Text(
-                        '${currentRole.label.toUpperCase()} AUDIT TRAIL',
-                        style: const TextStyle(
-                          color: AppColors.accentGoldLight,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
+                    NeonPill(
+                      text: '${currentRole.shortTag} TELEMETRY TRAIL',
+                      color: Colors.white,
+                      isFilled: true,
                     ),
                     const SizedBox(width: 8),
                     Text(
                       '$totalCount logged',
-                      style: const TextStyle(color: Colors.white70, fontSize: 12),
+                      style: const TextStyle(color: Colors.white70, fontSize: 12, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
+                const SizedBox(height: 8),
                 const Text(
                   'Activity & Wayfinding History',
                   style: TextStyle(
                     color: Colors.white,
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.3,
                   ),
                 ),
+                const SizedBox(height: 2),
                 const Text(
                   'Chronological GPS-recorded log of every service action',
                   style: TextStyle(color: Colors.white70, fontSize: 11),
@@ -226,7 +214,7 @@ class _ActivityHistoryScreenState extends ConsumerState<ActivityHistoryScreen> {
             ),
           ),
           IconButton(
-            icon: const Icon(Icons.delete_sweep_rounded, color: Colors.white70),
+            icon: const Icon(Icons.delete_sweep_rounded, color: Colors.white),
             tooltip: 'Clear role activity history',
             onPressed: () => _confirmClearHistory(context, currentRole),
           ),
@@ -296,20 +284,10 @@ class _ActivityHistoryScreenState extends ConsumerState<ActivityHistoryScreen> {
                                 ),
                               ),
                             ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                              decoration: BoxDecoration(
-                                color: iconColor.withOpacity(0.15),
-                                borderRadius: BorderRadius.circular(6),
-                              ),
-                              child: Text(
-                                activity.status,
-                                style: TextStyle(
-                                  color: iconColor,
-                                  fontWeight: FontWeight.w800,
-                                  fontSize: 10,
-                                ),
-                              ),
+                            NeonPill(
+                              text: activity.status,
+                              color: iconColor,
+                              isFilled: true,
                             ),
                           ],
                         ),

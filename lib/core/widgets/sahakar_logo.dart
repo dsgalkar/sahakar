@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../theme/app_theme.dart';
+import '../constants/app_colors.dart';
 
 class SahakarLogo extends StatelessWidget {
   final double size;
@@ -18,7 +18,7 @@ class SahakarLogo extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final borderRadius = BorderRadius.circular(size > 60 ? 20 : 10);
+    final borderRadius = BorderRadius.circular(size > 60 ? 22 : 12);
 
     Widget logoImage = Container(
       width: size,
@@ -26,39 +26,40 @@ class SahakarLogo extends StatelessWidget {
       padding: EdgeInsets.all(size > 60 ? 4 : 2),
       decoration: BoxDecoration(
         borderRadius: borderRadius,
-        color: Colors.white,
-        border: showBadgeBorder
-            ? Border.all(
-                color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
-                width: size > 60 ? 2.5 : 1.5,
-              )
-            : null,
+        gradient: showBadgeBorder ? AppColors.holographicBorder : null,
+        color: showBadgeBorder ? null : (isDark ? AppColors.darkSurface : Colors.white),
         boxShadow: [
-          BoxShadow(
-            color: (isDark ? Colors.black : AppColors.primaryBlue).withOpacity(0.18),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
+          if (showBadgeBorder)
+            BoxShadow(
+              color: AppColors.neonCyan.withValues(alpha: isDark ? 0.35 : 0.15),
+              blurRadius: size * 0.25,
+              offset: const Offset(0, 2),
+            ),
         ],
       ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(size > 60 ? 16 : 8),
-        child: Image.asset(
-          'assets/img/logo.jpg',
-          width: size,
-          height: size,
-          fit: BoxFit.contain,
-          errorBuilder: (context, error, stackTrace) {
-            return Container(
-              color: isDark ? AppColors.darkSurface : AppColors.primaryBlue,
-              alignment: Alignment.center,
-              child: Icon(
-                Icons.handshake_rounded,
-                size: size * 0.55,
-                color: isDark ? AppColors.accentGoldLight : Colors.white,
-              ),
-            );
-          },
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(size > 60 ? 18 : 10),
+          color: isDark ? AppColors.darkSurface : Colors.white,
+        ),
+        padding: EdgeInsets.all(size > 60 ? 6 : 4),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(size > 60 ? 14 : 8),
+          child: Image.asset(
+            'assets/img/logo.jpg',
+            width: size,
+            height: size,
+            fit: BoxFit.contain,
+            errorBuilder: (context, error, stackTrace) {
+              return Center(
+                child: Icon(
+                  Icons.hub_rounded,
+                  size: size * 0.52,
+                  color: AppColors.neonCyan,
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -75,7 +76,7 @@ class SahakarLogo extends StatelessWidget {
 
     return InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(12),
+      borderRadius: BorderRadius.circular(14),
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 4.0, vertical: 2.0),
         child: Row(
@@ -87,21 +88,43 @@ class SahakarLogo extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(
-                  'SAHAKAR',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.1,
-                    color: isDark ? Colors.white : AppColors.primaryBlue,
-                  ),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'SAHAKAR',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                        color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                      decoration: BoxDecoration(
+                        color: AppColors.neonCyan.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'GRID',
+                        style: TextStyle(
+                          fontSize: 8.5,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.neonCyan,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Text(
-                  'Instant Gig Support',
+                  'सहकार • Instant Gig Support',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.accentGoldLight : AppColors.accentGold,
+                    color: isDark ? AppColors.neonCyan : AppColors.neonCyanDark,
                     letterSpacing: 0.2,
                   ),
                 ),
@@ -113,3 +136,4 @@ class SahakarLogo extends StatelessWidget {
     );
   }
 }
+

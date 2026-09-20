@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/creative_avatar.dart';
 import '../../core/widgets/sahakar_logo.dart';
 import '../shell/app_shell.dart';
 
@@ -101,7 +102,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         locationAddress: user.address,
         latitude: user.latitude,
         longitude: user.longitude,
-        status: 'Active Session',
+        status: 'Active Grid',
       ),
     );
 
@@ -129,85 +130,133 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Header with logo
+              // Minimalist Header with Glowing Emblem
               const SizedBox(height: 12),
               Center(
                 child: Hero(
                   tag: 'app_logo',
-                  child: SahakarLogo(
-                    size: 72,
-                    showBadgeBorder: true,
-                    isCompact: true,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.neonCyan.withValues(alpha: isDark ? 0.35 : 0.15),
+                          blurRadius: 24,
+                          spreadRadius: 2,
+                        ),
+                      ],
+                    ),
+                    child: const SahakarLogo(
+                      size: 68,
+                      showBadgeBorder: true,
+                      isCompact: true,
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: 16),
               Center(
-                child: Text(
-                  'SAHAKAR',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                    color: isDark ? Colors.white : AppColors.primaryBlue,
-                  ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      'SAHAKAR',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.5,
+                        color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: AppColors.neonCyan.withValues(alpha: 0.18),
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(
+                          color: AppColors.neonCyan.withValues(alpha: 0.7),
+                          width: 1,
+                        ),
+                      ),
+                      child: const Text(
+                        'GRID',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w900,
+                          color: AppColors.neonCyan,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
+              const SizedBox(height: 4),
               Center(
                 child: Text(
-                  'Instant Gig Support • Cooperative Network',
+                  'Autonomous Cooperative Gig & Social Security Network',
                   style: TextStyle(
-                    fontSize: 13,
+                    fontSize: 12,
                     fontWeight: FontWeight.w600,
-                    color: isDark ? AppColors.accentGoldLight : AppColors.accentGold,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                   ),
                 ),
               ),
               const SizedBox(height: 24),
 
-              // 3 Role Tabs
+              // 3 Role Tabs with Minimalist Futuristic Styling
               Container(
                 decoration: BoxDecoration(
-                  color: isDark ? AppColors.darkCard : Colors.grey.shade100,
-                  borderRadius: BorderRadius.circular(14),
+                  color: isDark ? AppColors.darkCard : AppColors.lightCardSubtle,
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
                     color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    width: 1.2,
                   ),
                 ),
                 padding: const EdgeInsets.all(4),
                 child: TabBar(
                   controller: _tabController,
                   indicator: BoxDecoration(
-                    color: isDark ? AppColors.primaryBlueLight : AppColors.primaryBlue,
-                    borderRadius: BorderRadius.circular(10),
+                    color: isDark ? AppColors.neonCyan : AppColors.lightTextPrimary,
+                    borderRadius: BorderRadius.circular(12),
+                    boxShadow: [
+                      if (isDark)
+                        BoxShadow(
+                          color: AppColors.neonCyan.withValues(alpha: 0.35),
+                          blurRadius: 10,
+                        ),
+                    ],
                   ),
-                  labelColor: Colors.white,
+                  labelColor: isDark ? const Color(0xFF07090E) : Colors.white,
                   unselectedLabelColor:
                       isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                  labelStyle: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                  labelStyle: const TextStyle(fontWeight: FontWeight.w800, fontSize: 12.5),
                   unselectedLabelStyle:
-                      const TextStyle(fontWeight: FontWeight.w600, fontSize: 13),
+                      const TextStyle(fontWeight: FontWeight.w600, fontSize: 12),
                   indicatorSize: TabBarIndicatorSize.tab,
                   dividerColor: Colors.transparent,
                   tabs: const [
                     Tab(
-                      icon: Icon(Icons.person_rounded, size: 18),
-                      text: 'User',
+                      icon: Icon(Icons.fingerprint_rounded, size: 18),
+                      text: 'Citizen',
                     ),
                     Tab(
-                      icon: Icon(Icons.handyman_rounded, size: 18),
-                      text: 'Gig Worker',
+                      icon: Icon(Icons.bolt_rounded, size: 18),
+                      text: 'KarmaYogi',
                     ),
                     Tab(
-                      icon: Icon(Icons.admin_panel_settings_rounded, size: 18),
-                      text: 'Admin',
+                      icon: Icon(Icons.shield_rounded, size: 18),
+                      text: 'Trustee',
                     ),
                   ],
                 ),
               ),
               const SizedBox(height: 20),
 
-              // Role summary and permissions explanation card
+              // Role summary and Creative Avatar preview card
               _buildRoleInfoCard(isDark),
               const SizedBox(height: 20),
 
@@ -308,56 +357,66 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
     String title = '';
     String desc = '';
     String accessScope = '';
-    IconData icon = Icons.info_outline;
-    Color accentColor = AppColors.primaryBlue;
+    AvatarTrade avatarTrade = AvatarTrade.citizen;
+    Color accentColor = AppColors.neonCyan;
 
     switch (_tabController.index) {
       case 0:
-        title = 'Customer / User Account';
+        title = 'Citizen Member';
+        accessScope = 'Direct Gigs • Verified Pricing';
         desc =
             'Book instant emergency gig support (Electrician, Plumber, Appliance) with verified cooperative society workers.';
-        icon = Icons.home_repair_service_rounded;
-        accentColor = AppColors.primaryBlueLight;
+        avatarTrade = AvatarTrade.citizen;
+        accentColor = AppColors.neonCyan;
         break;
       case 1:
-        title = 'Sahakar Sathi (Gig Worker)';
+        title = 'KarmaYogi Worker';
+        accessScope = '88% Direct Pass-Through • e-Shram';
         desc =
-            'Receive instant ticket alerts, active ₹5 accident insurance, e-Shram portable benefits & 88% direct wage share.';
-        icon = Icons.engineering_rounded;
-        accentColor = AppColors.accentGoldLight;
+            'Receive instant ticket alerts, active ₹5 Lakh accidental cover, e-Shram portable benefits & 88% direct wage pass-through.';
+        avatarTrade = AvatarTrade.electrician;
+        accentColor = AppColors.neonGold;
         break;
       case 2:
-        title = 'Apex Federation & Society Admin';
+        title = 'Cooperative Trustee & Auditor';
+        accessScope = 'Sec 114 Code 2020 • Apex Ledger';
         desc =
-            'Oversee Social Security Fund compliance (Sec 114 Code on Social Security 2020), worker KYC approval & demand heatmaps.';
-        icon = Icons.account_balance_rounded;
-        accentColor = AppColors.successGreenLight;
+            'Oversee Social Security Fund statutory compliance (Sec 114 Code on Social Security 2020), worker KYC approval & demand heatmaps.';
+        avatarTrade = AvatarTrade.admin;
+        accentColor = AppColors.neonPurple;
         break;
     }
+
     return Container(
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isDark ? AppColors.darkCard : Colors.white,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(18),
         border: Border.all(
-          color: accentColor.withOpacity(0.4),
-          width: 1.2,
+          color: accentColor.withValues(alpha: isDark ? 0.45 : 0.6),
+          width: 1.4,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: isDark ? 0.12 : 0.06),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: accentColor.withOpacity(0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(icon, size: 20, color: accentColor),
+              CreativeAvatar(
+                size: 48,
+                trade: avatarTrade,
+                isOnline: true,
+                isVerified: true,
+                nsqfLevel: _tabController.index == 1 ? 4 : null,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -365,16 +424,18 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.w700,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
                         color: isDark ? Colors.white : AppColors.lightTextPrimary,
                       ),
                     ),
+                    const SizedBox(height: 2),
                     Text(
                       accessScope,
                       style: TextStyle(
                         fontSize: 11,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.3,
                         color: accentColor,
                       ),
                     ),
@@ -383,12 +444,12 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
               ),
             ],
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: 12),
           Text(
             desc,
             style: TextStyle(
               fontSize: 12,
-              height: 1.4,
+              height: 1.45,
               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
           ),

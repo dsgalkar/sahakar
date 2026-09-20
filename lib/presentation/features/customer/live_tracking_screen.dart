@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/models/app_models.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/creative_avatar.dart';
+import '../../../core/widgets/futuristic_widgets.dart';
 import '../../../core/widgets/sahakar_logo.dart';
 
 class LiveTrackingScreen extends ConsumerWidget {
@@ -34,30 +36,38 @@ class LiveTrackingScreen extends ConsumerWidget {
           children: [
             Hero(
               tag: 'tracking_logo',
-              child: SahakarLogo(size: 28, showBadgeBorder: false, isCompact: true),
+              child: SahakarLogo(size: 26, showBadgeBorder: false, isCompact: true),
             ),
             const SizedBox(width: 8),
             const Text(
-              'Live Worker Wayfinding',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+              'LIVE WAYFINDING RADAR',
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, letterSpacing: 1.0),
             ),
           ],
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.sos_rounded, color: AppColors.emergencyRedLight),
-            tooltip: 'Emergency SOS',
-            onPressed: () => _showSosDialog(context, ref, ticket.id),
+          Container(
+            margin: const EdgeInsets.only(right: 12),
+            child: IconButton.filled(
+              style: IconButton.styleFrom(
+                backgroundColor: AppColors.neonCoral.withOpacity(0.2),
+                foregroundColor: AppColors.neonCoral,
+                side: const BorderSide(color: AppColors.neonCoral, width: 1.2),
+              ),
+              icon: const Icon(Icons.sos_rounded, size: 20),
+              tooltip: 'Emergency SOS',
+              onPressed: () => _showSosDialog(context, ref, ticket.id),
+            ),
           ),
         ],
       ),
       body: Column(
         children: [
-          // Simulated Visual Map with real route animation
+          // Simulated Visual Map with real futuristic neon route animation
           Expanded(
             flex: 5,
             child: Container(
-              color: isDark ? const Color(0xFF0F1A30) : const Color(0xFFE2E8F0),
+              color: isDark ? const Color(0xFF04060A) : const Color(0xFFE2E8F0),
               child: Stack(
                 children: [
                   // Map Background Canvas
@@ -69,39 +79,43 @@ class LiveTrackingScreen extends ConsumerWidget {
                     ),
                   ),
 
-                  // ETA Float Banner
+                  // ETA Float Banner with Neon Glow
                   Positioned(
                     top: 16,
                     left: 16,
                     right: 16,
-                    child: Container(
+                    child: GlassNeonCard(
+                      neonGlowColor: ticket.status == TicketStatus.arrived
+                          ? AppColors.neonGreen
+                          : AppColors.neonCyan,
+                      glowSpread: 0.15,
                       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: (isDark ? AppColors.darkCard : Colors.white).withOpacity(0.92),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(
-                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withOpacity(0.15),
-                            blurRadius: 10,
-                            offset: const Offset(0, 3),
-                          ),
-                        ],
-                      ),
                       child: Row(
                         children: [
                           Container(
                             padding: const EdgeInsets.all(10),
                             decoration: BoxDecoration(
-                              color: AppColors.successGreenLight.withOpacity(0.15),
+                              color: (ticket.status == TicketStatus.arrived
+                                      ? AppColors.neonGreen
+                                      : AppColors.neonCyan)
+                                  .withOpacity(0.18),
                               shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: (ticket.status == TicketStatus.arrived
+                                          ? AppColors.neonGreen
+                                          : AppColors.neonCyan)
+                                      .withOpacity(0.4),
+                                  blurRadius: 10,
+                                ),
+                              ],
                             ),
-                            child: const Icon(
+                            child: Icon(
                               Icons.electric_moped_rounded,
-                              color: AppColors.successGreenLight,
-                              size: 24,
+                              color: ticket.status == TicketStatus.arrived
+                                  ? AppColors.neonGreen
+                                  : AppColors.neonCyan,
+                              size: 22,
                             ),
                           ),
                           const SizedBox(width: 12),
@@ -115,39 +129,32 @@ class LiveTrackingScreen extends ConsumerWidget {
                                       ? 'Worker has arrived outside!'
                                       : 'Arriving in ~${ticket.estimatedArrivalMinutes} mins',
                                   style: const TextStyle(
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w900,
                                     fontSize: 15,
+                                    letterSpacing: -0.2,
                                   ),
                                 ),
                                 Text(
                                   ticket.status == TicketStatus.arrived
-                                      ? 'Please verify OTP to initiate service'
-                                      : 'Worker en-route • ${(ticket.estimatedArrivalMinutes * 0.28).toStringAsFixed(1)} km away',
+                                      ? 'Verify OTP to start work ledger'
+                                      : 'Radar track active • ${(ticket.estimatedArrivalMinutes * 0.28).toStringAsFixed(1)} km away',
                                   style: TextStyle(
-                                    fontSize: 12,
+                                    fontSize: 11,
                                     color: isDark
                                         ? AppColors.darkTextSecondary
                                         : AppColors.lightTextSecondary,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
                               ],
                             ),
                           ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                            decoration: BoxDecoration(
-                              color: AppColors.primaryBlueLight.withOpacity(0.12),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Text(
-                              'LIVE',
-                              style: TextStyle(
-                                color: AppColors.primaryBlueLight,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 11,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
+                          NeonPill(
+                            label: 'LIVE RADAR',
+                            color: ticket.status == TicketStatus.arrived
+                                ? AppColors.neonGreen
+                                : AppColors.neonCyan,
+                            isFilled: true,
                           ),
                         ],
                       ),
@@ -157,21 +164,26 @@ class LiveTrackingScreen extends ConsumerWidget {
                   // Start OTP Floater at bottom of map
                   Positioned(
                     bottom: 16,
-                    left: 20,
-                    right: 20,
+                    left: 16,
+                    right: 16,
                     child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: isDark ? AppColors.darkSurface : AppColors.primaryBlue,
-                        borderRadius: BorderRadius.circular(14),
+                        gradient: LinearGradient(
+                          colors: isDark
+                              ? [const Color(0xFF0F172A), const Color(0xFF1E1035)]
+                              : [AppColors.primaryBlue, const Color(0xFF1D4ED8)],
+                        ),
+                        borderRadius: BorderRadius.circular(16),
                         border: Border.all(
-                          color: isDark ? AppColors.accentGoldLight : Colors.transparent,
-                          width: 1.2,
+                          color: AppColors.neonCyan.withOpacity(0.6),
+                          width: 1.5,
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.2),
-                            blurRadius: 8,
+                            color: AppColors.neonCyan.withOpacity(0.25),
+                            blurRadius: 14,
+                            spreadRadius: 1,
                           ),
                         ],
                       ),
@@ -182,21 +194,28 @@ class LiveTrackingScreen extends ConsumerWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisSize: MainAxisSize.min,
                             children: [
-                              Text(
-                                'SERVICE START OTP',
-                                style: TextStyle(
-                                  color: Colors.white70,
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.8,
-                                ),
+                              Row(
+                                children: [
+                                  Icon(Icons.key_rounded, size: 12, color: AppColors.neonCyan),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'SERVICE START OTP',
+                                    style: TextStyle(
+                                      color: AppColors.neonCyan,
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: 1.2,
+                                    ),
+                                  ),
+                                ],
                               ),
+                              SizedBox(height: 2),
                               Text(
-                                'Share with worker upon arrival',
+                                'Share with worker upon physical arrival',
                                 style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
                                 ),
                               ),
                             ],
@@ -204,16 +223,24 @@ class LiveTrackingScreen extends ConsumerWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(8),
+                              color: const Color(0xFF07090E),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(color: AppColors.neonGold, width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.neonGold.withOpacity(0.3),
+                                  blurRadius: 8,
+                                ),
+                              ],
                             ),
                             child: Text(
                               ticket.startOtp,
                               style: const TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.w900,
-                                letterSpacing: 3.0,
-                                color: AppColors.primaryBlue,
+                                letterSpacing: 3.5,
+                                color: AppColors.neonGold,
+                                fontFamily: 'monospace',
                               ),
                             ),
                           ),
@@ -233,11 +260,17 @@ class LiveTrackingScreen extends ConsumerWidget {
               decoration: BoxDecoration(
                 color: isDark ? AppColors.darkCard : Colors.white,
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                border: Border(
+                  top: BorderSide(
+                    color: isDark ? AppColors.neonCyan.withOpacity(0.3) : AppColors.lightBorder,
+                    width: 1.5,
+                  ),
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 12,
-                    offset: const Offset(0, -4),
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 16,
+                    offset: const Offset(0, -6),
                   ),
                 ],
               ),
@@ -246,17 +279,16 @@ class LiveTrackingScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    // Worker Profile Row
+                    // Worker Profile Row with CreativeAvatar
                     Row(
                       children: [
-                        CircleAvatar(
+                        CreativeAvatar(
+                          tradeName: worker?.trade ?? ticket.serviceName,
+                          role: UserRole.gigWorker,
                           radius: 28,
-                          backgroundColor: AppColors.primaryBlueLight.withOpacity(0.2),
-                          child: const Icon(
-                            Icons.person_rounded,
-                            size: 32,
-                            color: AppColors.primaryBlueLight,
-                          ),
+                          showGlow: true,
+                          nsqfLevel: worker?.nsqfLevel ?? 4,
+                          isLiveOnline: true,
                         ),
                         const SizedBox(width: 14),
                         Expanded(
@@ -266,39 +298,45 @@ class LiveTrackingScreen extends ConsumerWidget {
                               Row(
                                 children: [
                                   Text(
-                                    worker?.name ?? 'Assigned Worker',
+                                    worker?.name ?? 'Assigned KarmaYogi',
                                     style: const TextStyle(
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w900,
                                       fontSize: 16,
+                                      letterSpacing: -0.2,
                                     ),
                                   ),
                                   const SizedBox(width: 6),
                                   const Icon(
                                     Icons.verified_rounded,
                                     size: 16,
-                                    color: AppColors.successGreenLight,
+                                    color: AppColors.neonGreen,
                                   ),
                                 ],
-                              ),
-                              Text(
-                                '${worker?.trade ?? ticket.serviceName} • NSQF Level ${worker?.nsqfLevel ?? 4}',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: isDark
-                                      ? AppColors.darkTextSecondary
-                                      : AppColors.lightTextSecondary,
-                                  fontWeight: FontWeight.w500,
-                                ),
                               ),
                               const SizedBox(height: 2),
                               Row(
                                 children: [
-                                  const Icon(Icons.star_rounded, size: 15, color: Colors.amber),
+                                  NeonPill(
+                                    label: (worker?.trade ?? ticket.serviceName).toUpperCase(),
+                                    color: AppColors.neonCyan,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  NeonPill(
+                                    label: 'NSQF L-${worker?.nsqfLevel ?? 4}',
+                                    color: AppColors.neonGreen,
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  const Icon(Icons.star_rounded, size: 15, color: AppColors.neonGold),
                                   Text(
-                                    ' ${worker?.rating ?? 4.9} (${worker?.completedJobs ?? 300}+ gigs)',
-                                    style: const TextStyle(
-                                      fontSize: 12,
+                                    ' ${worker?.rating ?? 4.9} (${worker?.completedJobs ?? 300}+ cooperative gigs)',
+                                    style: TextStyle(
+                                      fontSize: 11,
                                       fontWeight: FontWeight.w700,
+                                      color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
                                     ),
                                   ),
                                 ],
@@ -307,11 +345,16 @@ class LiveTrackingScreen extends ConsumerWidget {
                           ),
                         ),
 
-                        // Call & Chat Actions
+                        // Call Action Button
                         IconButton.filledTonal(
+                          style: IconButton.styleFrom(
+                            backgroundColor: AppColors.neonCyan.withOpacity(0.15),
+                            foregroundColor: AppColors.neonCyan,
+                          ),
                           onPressed: () {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
+                                backgroundColor: AppColors.darkSurface,
                                 content: Text('Dialing ${worker?.phone ?? "worker"}...'),
                                 duration: const Duration(seconds: 2),
                               ),
@@ -321,7 +364,7 @@ class LiveTrackingScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const Divider(height: 24),
+                    const SizedBox(height: 16),
 
                     // Cooperative Society & e-Shram credentials
                     Container(
@@ -340,7 +383,7 @@ class LiveTrackingScreen extends ConsumerWidget {
                               const Icon(
                                 Icons.apartment_rounded,
                                 size: 16,
-                                color: AppColors.primaryBlueLight,
+                                color: AppColors.neonCyan,
                               ),
                               const SizedBox(width: 8),
                               Expanded(
@@ -348,25 +391,14 @@ class LiveTrackingScreen extends ConsumerWidget {
                                   worker?.societyName ?? 'Shramik Kalyan Sahakari Mandali',
                                   style: const TextStyle(
                                     fontSize: 12,
-                                    fontWeight: FontWeight.w700,
+                                    fontWeight: FontWeight.w800,
                                   ),
                                 ),
                               ),
-                              Container(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                                decoration: BoxDecoration(
-                                  color: AppColors.successGreenLight.withOpacity(0.15),
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Text(
-                                  'Co-op Verified',
-                                  style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w700,
-                                    color: AppColors.successGreenLight,
-                                  ),
-                                ),
+                              const NeonPill(
+                                label: 'CO-OP VERIFIED',
+                                color: AppColors.neonGreen,
+                                isFilled: true,
                               ),
                             ],
                           ),
@@ -376,7 +408,7 @@ class LiveTrackingScreen extends ConsumerWidget {
                               const Icon(
                                 Icons.badge_rounded,
                                 size: 16,
-                                color: AppColors.accentGoldLight,
+                                color: AppColors.neonGold,
                               ),
                               const SizedBox(width: 8),
                               Text(
@@ -394,14 +426,14 @@ class LiveTrackingScreen extends ConsumerWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: 12),
 
                     // Destination Address Bar
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                       decoration: BoxDecoration(
                         color: (isDark ? AppColors.darkSurface : Colors.grey.shade100),
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
                         ),
@@ -411,7 +443,7 @@ class LiveTrackingScreen extends ConsumerWidget {
                           const Icon(
                             Icons.location_on_rounded,
                             size: 18,
-                            color: AppColors.emergencyRedLight,
+                            color: AppColors.neonCoral,
                           ),
                           const SizedBox(width: 8),
                           Expanded(
@@ -419,12 +451,12 @@ class LiveTrackingScreen extends ConsumerWidget {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 const Text(
-                                  'DESTINATION (PHYSICAL LOCATION)',
+                                  'DESTINATION COORDINATES',
                                   style: TextStyle(
                                     fontSize: 9,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w900,
                                     letterSpacing: 0.8,
-                                    color: AppColors.emergencyRedLight,
+                                    color: AppColors.neonCoral,
                                   ),
                                 ),
                                 Text(
@@ -454,31 +486,45 @@ class LiveTrackingScreen extends ConsumerWidget {
                     const SizedBox(height: 14),
 
                     // Transparent Fair Price Box
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Estimated Total (Co-op Fair Bill)',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600),
-                        ),
-                        Text(
-                          '₹${ticket.fairPrice.total.toStringAsFixed(0)}',
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                            color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: AppColors.neonGold.withOpacity(0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.neonGold.withOpacity(0.3)),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Cooperative Fair Fare',
+                                style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
+                              ),
+                              Text(
+                                '₹${ticket.fairPrice.total.toStringAsFixed(0)}',
+                                style: const TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w900,
+                                  color: AppColors.neonGold,
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'Direct Worker Wage: ₹${ticket.fairPrice.workerWage.toStringAsFixed(0)} (88%) • Statutory Social Security: ₹${ticket.fairPrice.socialSecurityFund.toStringAsFixed(0)} • Ops: ₹${ticket.fairPrice.operationsFee.toStringAsFixed(0)}',
-                      style: TextStyle(
-                        fontSize: 11,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
+                          const SizedBox(height: 4),
+                          Text(
+                            'Direct KarmaYogi Wage: ₹${ticket.fairPrice.workerWage.toStringAsFixed(0)} (88%) • Statutory Sec 114: ₹${ticket.fairPrice.socialSecurityFund.toStringAsFixed(0)} • Ops: ₹${ticket.fairPrice.operationsFee.toStringAsFixed(0)}',
+                            style: TextStyle(
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                              color: isDark
+                                  ? AppColors.darkTextSecondary
+                                  : AppColors.lightTextSecondary,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -497,13 +543,13 @@ class LiveTrackingScreen extends ConsumerWidget {
       builder: (ctx) => AlertDialog(
         title: const Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: AppColors.emergencyRed),
+            Icon(Icons.warning_amber_rounded, color: AppColors.neonCoral),
             SizedBox(width: 8),
-            Text('Cooperative SOS Alert'),
+            Text('Cooperative SOS Alert', style: TextStyle(fontWeight: FontWeight.w900)),
           ],
         ),
         content: const Text(
-          'Emergency SOS will broadcast your current physical coordinates and active gig ticket to the local police control room, cooperative society safety monitor, and emergency contacts.\n\nThis incident will also be recorded in your Activity History.',
+          'Emergency SOS broadcasts your live telemetry coordinates and active gig ticket to local police, cooperative safety response team, and designated emergency contacts.\n\nThis incident is logged immutably into your Activity History ledger.',
         ),
         actions: [
           TextButton(
@@ -512,7 +558,8 @@ class LiveTrackingScreen extends ConsumerWidget {
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.emergencyRed,
+              backgroundColor: AppColors.neonCoral,
+              foregroundColor: Colors.white,
             ),
             onPressed: () {
               ref.read(activeTicketsProvider.notifier).logSosAlert(
@@ -522,12 +569,18 @@ class LiveTrackingScreen extends ConsumerWidget {
               Navigator.of(ctx).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
-                  backgroundColor: AppColors.emergencyRed,
-                  content: Text('🚨 SOS Alert Dispatched & Recorded in Activity History'),
+                  backgroundColor: AppColors.neonCoral,
+                  content: Row(
+                    children: [
+                      Icon(Icons.sos_rounded, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text('🚨 SOS Alert Dispatched & Recorded in Activity History', style: TextStyle(fontWeight: FontWeight.w800)),
+                    ],
+                  ),
                 ),
               );
             },
-            child: const Text('Trigger SOS'),
+            child: const Text('Broadcast SOS', style: TextStyle(fontWeight: FontWeight.w900)),
           ),
         ],
       ),
@@ -535,7 +588,7 @@ class LiveTrackingScreen extends ConsumerWidget {
   }
 }
 
-// Custom Painter drawing interactive road grid, user pin, worker pin, and path
+// Custom Painter drawing interactive cyber road grid, user pin, worker pin, and glowing neon path
 class _MapCanvasPainter extends CustomPainter {
   final bool isDark;
   final double workerProgress;
@@ -547,36 +600,43 @@ class _MapCanvasPainter extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    final roadPaint = Paint()
-      ..color = (isDark ? const Color(0xFF1E2D4A) : Colors.white)
-      ..strokeWidth = 14
+    // Cyber road backgrounds
+    final roadBorderPaint = Paint()
+      ..color = (isDark ? const Color(0xFF131D33) : const Color(0xFFCBD5E1))
+      ..strokeWidth = 16
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    final roadBorderPaint = Paint()
-      ..color = (isDark ? const Color(0xFF2B3F66) : const Color(0xFFCBD5E1))
-      ..strokeWidth = 18
+    final roadPaint = Paint()
+      ..color = (isDark ? const Color(0xFF0B101D) : Colors.white)
+      ..strokeWidth = 12
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
+
+    // Glowing Neon Cyan Route
+    final routeGlowPaint = Paint()
+      ..color = AppColors.neonCyan.withOpacity(0.45)
+      ..strokeWidth = 10
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
 
     final activeRoutePaint = Paint()
-      ..color = AppColors.primaryBlueLight
-      ..strokeWidth = 6
+      ..color = AppColors.neonCyan
+      ..strokeWidth = 4
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
 
-    // Draw stylized road grid
-    final path = Path();
-    // Start at bottom left (worker start)
+    // Road Grid Lines
     final start = Offset(size.width * 0.2, size.height * 0.75);
     final mid = Offset(size.width * 0.45, size.height * 0.45);
     final end = Offset(size.width * 0.78, size.height * 0.25); // User home
 
-    path.moveTo(start.dx, start.dy);
-    path.lineTo(mid.dx, mid.dy);
-    path.lineTo(end.dx, end.dy);
+    final path = Path()
+      ..moveTo(start.dx, start.dy)
+      ..lineTo(mid.dx, mid.dy)
+      ..lineTo(end.dx, end.dy);
 
-    // Cross roads
     final cross1 = Path()
       ..moveTo(0, size.height * 0.45)
       ..lineTo(size.width, size.height * 0.45);
@@ -592,6 +652,9 @@ class _MapCanvasPainter extends CustomPainter {
 
     canvas.drawPath(path, roadBorderPaint);
     canvas.drawPath(path, roadPaint);
+
+    // Glowing route
+    canvas.drawPath(path, routeGlowPaint);
     canvas.drawPath(path, activeRoutePaint);
 
     // Calculate current worker position interpolated along route
@@ -601,22 +664,41 @@ class _MapCanvasPainter extends CustomPainter {
       start.dy + (end.dy - start.dy) * t,
     );
 
-    // User home pin
-    final userPinPaint = Paint()..color = AppColors.emergencyRedLight;
+    // User home pin with Coral Glow
+    final userGlow = Paint()
+      ..color = AppColors.neonCoral.withOpacity(0.4)
+      ..style = PaintingStyle.fill
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
+    canvas.drawCircle(end, 20, userGlow);
+
+    final userPinPaint = Paint()..color = AppColors.neonCoral;
     canvas.drawCircle(end, 12, userPinPaint);
     final userInnerPin = Paint()..color = Colors.white;
     canvas.drawCircle(end, 5, userInnerPin);
 
-    // Worker moving pin
-    final workerRadiusPulse = Paint()
-      ..color = AppColors.successGreenLight.withOpacity(0.3)
-      ..style = PaintingStyle.fill;
-    canvas.drawCircle(workerPos, 22, workerRadiusPulse);
+    // Worker moving pin with Pulsing Neon Green & Radar Rings
+    final radarRing1 = Paint()
+      ..color = AppColors.neonGreen.withOpacity(0.2)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2;
+    canvas.drawCircle(workerPos, 32, radarRing1);
 
-    final workerPinPaint = Paint()..color = AppColors.successGreenLight;
-    canvas.drawCircle(workerPos, 14, workerPinPaint);
-    final workerInnerPin = Paint()..color = Colors.white;
-    canvas.drawCircle(workerPos, 6, workerInnerPin);
+    final radarRing2 = Paint()
+      ..color = AppColors.neonGreen.withOpacity(0.35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.5;
+    canvas.drawCircle(workerPos, 22, radarRing2);
+
+    final workerPinGlow = Paint()
+      ..color = AppColors.neonGreen.withOpacity(0.6)
+      ..style = PaintingStyle.fill
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 6);
+    canvas.drawCircle(workerPos, 14, workerPinGlow);
+
+    final workerPinPaint = Paint()..color = AppColors.neonGreen;
+    canvas.drawCircle(workerPos, 12, workerPinPaint);
+    final workerInnerPin = Paint()..color = const Color(0xFF07090E);
+    canvas.drawCircle(workerPos, 5, workerInnerPin);
   }
 
   @override

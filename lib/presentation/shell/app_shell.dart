@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/models/app_models.dart';
 import '../../core/state/app_state.dart';
 import '../../core/theme/app_theme.dart';
+import '../../core/widgets/creative_avatar.dart';
+import '../../core/widgets/futuristic_widgets.dart';
 import '../../core/widgets/sahakar_logo.dart';
 import '../auth/login_screen.dart';
 import '../features/admin/admin_dashboard.dart';
@@ -26,6 +28,7 @@ class _AppShellState extends ConsumerState<AppShell> {
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final currentRole = ref.watch(currentRoleProvider);
+    final currentUser = ref.watch(currentUserProvider);
     final tickets = ref.watch(activeTicketsProvider);
     final activeTicket = tickets.where((t) => t.status != TicketStatus.completed).firstOrNull;
 
@@ -35,25 +38,25 @@ class _AppShellState extends ConsumerState<AppShell> {
 
     switch (currentRole) {
       case UserRole.user:
-        // User sees Services and Activity History tabs
         availableScreens = [
           const CustomerHomeScreen(),
           const ActivityHistoryScreen(),
         ];
         navItems = const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_repair_service_rounded),
+            icon: Icon(Icons.hub_rounded),
+            activeIcon: Icon(Icons.hub_rounded, color: AppColors.neonCyan),
             label: 'Services',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_rounded),
-            label: 'Activity History',
+            icon: Icon(Icons.receipt_long_rounded),
+            activeIcon: Icon(Icons.receipt_long_rounded, color: AppColors.neonCyan),
+            label: 'Telemetry History',
           ),
         ];
         break;
 
       case UserRole.gigWorker:
-        // Gig worker sees User, Gig Worker, and Work History tabs
         availableScreens = [
           const CustomerHomeScreen(),
           const WorkerDashboard(),
@@ -61,22 +64,24 @@ class _AppShellState extends ConsumerState<AppShell> {
         ];
         navItems = const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_repair_service_rounded),
-            label: 'User Services',
+            icon: Icon(Icons.hub_rounded),
+            activeIcon: Icon(Icons.hub_rounded, color: AppColors.neonCyan),
+            label: 'Client View',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.handyman_rounded),
-            label: 'Worker Portal',
+            icon: Icon(Icons.bolt_rounded),
+            activeIcon: Icon(Icons.bolt_rounded, color: AppColors.neonGold),
+            label: 'KarmaYogi Grid',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_rounded),
-            label: 'Work History',
+            icon: Icon(Icons.receipt_long_rounded),
+            activeIcon: Icon(Icons.receipt_long_rounded, color: AppColors.neonCyan),
+            label: 'History',
           ),
         ];
         break;
 
       case UserRole.admin:
-        // Admin sees all 4 tabs: User, Worker, Admin, Audit History
         availableScreens = [
           const CustomerHomeScreen(),
           const WorkerDashboard(),
@@ -85,35 +90,37 @@ class _AppShellState extends ConsumerState<AppShell> {
         ];
         navItems = const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_repair_service_rounded),
-            label: 'User Services',
+            icon: Icon(Icons.hub_rounded),
+            activeIcon: Icon(Icons.hub_rounded, color: AppColors.neonCyan),
+            label: 'Client View',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.handyman_rounded),
-            label: 'Worker',
+            icon: Icon(Icons.bolt_rounded),
+            activeIcon: Icon(Icons.bolt_rounded, color: AppColors.neonGold),
+            label: 'Workers',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.admin_panel_settings_rounded),
-            label: 'Governance',
+            icon: Icon(Icons.shield_rounded),
+            activeIcon: Icon(Icons.shield_rounded, color: AppColors.neonPurple),
+            label: 'Trustee Ledger',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.history_edu_rounded),
+            icon: Icon(Icons.receipt_long_rounded),
+            activeIcon: Icon(Icons.receipt_long_rounded, color: AppColors.neonCyan),
             label: 'Audit History',
           ),
         ];
         break;
     }
 
-    // Safety check for index out of bounds when switching roles
     if (_currentIndex >= availableScreens.length) {
       _currentIndex = 0;
     }
 
     return Scaffold(
       appBar: AppBar(
-        // Home page button to all screens via SahakarLogo
         title: SahakarLogo(
-          size: 32,
+          size: 34,
           showBadgeBorder: false,
           isCompact: false,
           onTap: () {
@@ -123,35 +130,24 @@ class _AppShellState extends ConsumerState<AppShell> {
           },
         ),
         actions: [
-          // Role Indicator Badge
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            margin: const EdgeInsets.symmetric(vertical: 12),
-            decoration: BoxDecoration(
-              color: (isDark ? AppColors.accentGoldLight : AppColors.primaryBlue)
-                  .withOpacity(0.15),
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                color: (isDark ? AppColors.accentGoldLight : AppColors.primaryBlue)
-                    .withOpacity(0.4),
-              ),
-            ),
-            child: Text(
-              currentRole.shortTag,
-              style: TextStyle(
-                fontSize: 10,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
-                color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
-              ),
-            ),
+          // Futuristic Neon Role Pill
+          NeonPill(
+            text: currentRole.shortTag,
+            color: currentRole == UserRole.admin
+                ? AppColors.neonPurple
+                : (currentRole == UserRole.gigWorker
+                    ? AppColors.neonGold
+                    : AppColors.neonCyan),
+            isFilled: true,
           ),
+          const SizedBox(width: 6),
 
-          // Quick Theme Toggle (Sun / Moon)
+          // Quick Theme Toggle
           IconButton(
             icon: Icon(
               isDark ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
-              color: isDark ? AppColors.accentGoldLight : AppColors.primaryBlue,
+              color: isDark ? AppColors.neonGold : AppColors.lightTextPrimary,
+              size: 20,
             ),
             tooltip: isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode',
             onPressed: () {
@@ -159,36 +155,47 @@ class _AppShellState extends ConsumerState<AppShell> {
             },
           ),
 
-          // Settings Icon in header
-          IconButton(
-            icon: const Icon(Icons.settings_rounded),
-            tooltip: 'Settings & Menu',
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const SettingsScreen()),
-              );
-            },
+          // Creative User Avatar in Header (Clickable to Settings)
+          Padding(
+            padding: const EdgeInsets.only(right: 12.0, left: 2.0),
+            child: CreativeAvatar(
+              size: 36,
+              role: currentRole,
+              tradeName: currentUser.trade,
+              name: currentUser.fullName,
+              isOnline: true,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const SettingsScreen()),
+                );
+              },
+            ),
           ),
-          const SizedBox(width: 4),
         ],
       ),
 
-      // Adaptive Side Navigation Drawer with all proper required options
       drawer: _buildAppDrawer(context, ref, currentRole, activeTicket, isDark, availableScreens.length - 1),
-
-      // Role-based Screen View
       body: availableScreens[_currentIndex],
 
-      // Role-based Bottom Navigation Bar
       bottomNavigationBar: navItems.isNotEmpty
-          ? BottomNavigationBar(
-              currentIndex: _currentIndex,
-              items: navItems,
-              onTap: (index) {
-                setState(() {
-                  _currentIndex = index;
-                });
-              },
+          ? Container(
+              decoration: BoxDecoration(
+                border: Border(
+                  top: BorderSide(
+                    color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                    width: 1,
+                  ),
+                ),
+              ),
+              child: BottomNavigationBar(
+                currentIndex: _currentIndex,
+                items: navItems,
+                onTap: (index) {
+                  setState(() {
+                    _currentIndex = index;
+                  });
+                },
+              ),
             )
           : null,
     );
@@ -209,14 +216,10 @@ class _AppShellState extends ConsumerState<AppShell> {
       child: ListView(
         padding: EdgeInsets.zero,
         children: [
-          // Drawer Header with SahakarLogo and User Info
+          // Drawer Header with CreativeAvatar and User Info
           DrawerHeader(
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [const Color(0xFF132042), const Color(0xFF1E3A8A)]
-                    : [AppColors.primaryBlue, const Color(0xFF2563EB)],
-              ),
+              gradient: isDark ? AppColors.cyberPurpleGradient : AppColors.cyberCyanGradient,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -225,10 +228,12 @@ class _AppShellState extends ConsumerState<AppShell> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    SahakarLogo(
-                      size: 46,
-                      showBadgeBorder: true,
-                      isCompact: true,
+                    CreativeAvatar(
+                      size: 50,
+                      role: currentRole,
+                      tradeName: currentUser.trade,
+                      name: currentUser.fullName,
+                      isOnline: true,
                       onTap: () {
                         Navigator.of(context).pop();
                         setState(() => _currentIndex = 0);
@@ -237,15 +242,16 @@ class _AppShellState extends ConsumerState<AppShell> {
                     Container(
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(
-                        color: Colors.white24,
-                        borderRadius: BorderRadius.circular(6),
+                        color: Colors.black38,
+                        borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(
                         currentUser.role.shortTag,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 10,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.8,
                         ),
                       ),
                     ),
@@ -256,14 +262,14 @@ class _AppShellState extends ConsumerState<AppShell> {
                   currentUser.fullName,
                   style: const TextStyle(
                     color: Colors.white,
-                    fontSize: 16,
+                    fontSize: 17,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
                 Text(
                   '${currentUser.role.label} • +91 ${currentUser.phone}',
                   style: const TextStyle(
-                    color: AppColors.accentGoldLight,
+                    color: Colors.white70,
                     fontSize: 11,
                     fontWeight: FontWeight.w600,
                   ),

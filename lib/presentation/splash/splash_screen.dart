@@ -77,64 +77,113 @@ class _SplashScreenState extends State<SplashScreen>
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Branded logo using assets/img/logo.jpg
+                    // Branded logo using futuristic halo
                     Hero(
                       tag: 'app_logo',
-                      child: SahakarLogo(
-                        size: 110,
-                        showBadgeBorder: true,
-                        isCompact: true,
+                      child: Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.neonCyan.withValues(alpha: isDark ? 0.4 : 0.2),
+                              blurRadius: 36,
+                              spreadRadius: 4,
+                            ),
+                          ],
+                        ),
+                        child: const SahakarLogo(
+                          size: 110,
+                          showBadgeBorder: true,
+                          isCompact: true,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 28),
 
                     // App Title & Tagline
-                    Text(
-                      'SAHAKAR',
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.5,
-                        color: isDark ? Colors.white : AppColors.primaryBlue,
-                      ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'SAHAKAR',
+                          style: TextStyle(
+                            fontSize: 34,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 4.0,
+                            color: isDark ? Colors.white : AppColors.lightTextPrimary,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(
+                            color: AppColors.neonCyan.withValues(alpha: 0.18),
+                            borderRadius: BorderRadius.circular(6),
+                            border: Border.all(
+                              color: AppColors.neonCyan.withValues(alpha: 0.6),
+                              width: 1,
+                            ),
+                          ),
+                          child: const Text(
+                            'GRID',
+                            style: TextStyle(
+                              color: AppColors.neonCyan,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      'Instant Gig Support',
+                      'सहकार से सिद्धिः • Cooperative Gig Network',
                       style: TextStyle(
-                        fontSize: 18,
+                        fontSize: 13,
                         fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                        color: isDark
-                            ? AppColors.accentGoldLight
-                            : AppColors.accentGold,
+                        letterSpacing: 0.8,
+                        color: isDark ? AppColors.neonCyan : AppColors.neonCyanDark,
                       ),
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      'Cooperative Gig Services & Social Security Platform',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                        color: isDark
-                            ? AppColors.darkTextSecondary
-                            : AppColors.lightTextSecondary,
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: (isDark ? AppColors.darkCard : Colors.white).withValues(alpha: 0.8),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                          width: 1,
+                        ),
+                      ),
+                      child: Text(
+                        'Statutory Social Security • Code 2020 Compliant',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 11,
+                          fontWeight: FontWeight.w600,
+                          color: isDark
+                              ? AppColors.darkTextSecondary
+                              : AppColors.lightTextSecondary,
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 36),
-
                     const SizedBox(height: 48),
-                    SizedBox(
-                      width: 28,
-                      height: 28,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2.5,
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                          isDark
-                              ? AppColors.accentGoldLight
-                              : AppColors.primaryBlue,
-                        ),
+
+                    // Sleek Neon Progress Bar
+                    Container(
+                      width: 120,
+                      height: 3,
+                      clipBehavior: Clip.hardEdge,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: (isDark ? Colors.white10 : Colors.black12),
+                      ),
+                      child: const LinearProgressIndicator(
+                        backgroundColor: Colors.transparent,
+                        valueColor: AlwaysStoppedAnimation<Color>(AppColors.neonCyan),
                       ),
                     ),
                   ],

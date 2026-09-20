@@ -4,6 +4,8 @@ import '../../../core/models/app_models.dart';
 import '../../../core/services/mock_data_service.dart';
 import '../../../core/state/app_state.dart';
 import '../../../core/theme/app_theme.dart';
+import '../../../core/widgets/creative_avatar.dart';
+import '../../../core/widgets/futuristic_widgets.dart';
 import '../customer/live_tracking_screen.dart';
 
 class WorkerDashboard extends ConsumerStatefulWidget {
@@ -55,55 +57,83 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Worker Profile & Online Toggle Bar
+          // Worker Profile & Online Toggle Bar with CreativeAvatar
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
               color: isDark ? AppColors.darkCard : Colors.white,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(20),
               border: Border.all(
-                color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                color: isOnline
+                    ? (isDark ? AppColors.neonGreen.withValues(alpha: 0.5) : AppColors.neonGreenDark)
+                    : (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                width: 1.4,
               ),
+              boxShadow: [
+                if (isOnline && isDark)
+                  BoxShadow(
+                    color: AppColors.neonGreen.withValues(alpha: 0.15),
+                    blurRadius: 16,
+                    spreadRadius: 1,
+                  ),
+              ],
             ),
             child: Row(
               children: [
-                CircleAvatar(
-                  radius: 26,
-                  backgroundColor: AppColors.accentGoldLight.withOpacity(0.2),
-                  child: const Icon(
-                    Icons.engineering_rounded,
-                    size: 30,
-                    color: AppColors.accentGoldLight,
-                  ),
+                CreativeAvatar(
+                  size: 56,
+                  tradeName: worker.trade,
+                  name: worker.name,
+                  nsqfLevel: worker.nsqfLevel,
+                  isOnline: isOnline,
+                  isVerified: true,
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: 14),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
-                          Text(
-                            worker.name,
-                            style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 16),
+                          Flexible(
+                            child: Text(
+                              worker.name,
+                              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 16),
+                              overflow: TextOverflow.ellipsis,
+                            ),
                           ),
-                          const SizedBox(width: 4),
-                          const Icon(Icons.verified_rounded, size: 16, color: AppColors.successGreenLight),
+                          const SizedBox(width: 6),
+                          const Icon(Icons.verified_rounded, size: 16, color: AppColors.neonGreen),
                         ],
                       ),
-                      Text(
-                        '${worker.trade} • Level ${worker.nsqfLevel}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
-                        ),
+                      const SizedBox(height: 2),
+                      Row(
+                        children: [
+                          NeonPill(
+                            text: 'NSQF ${worker.nsqfLevel}',
+                            color: AppColors.neonGold,
+                            isFilled: true,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            worker.trade,
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w700,
+                              color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                            ),
+                          ),
+                        ],
                       ),
+                      const SizedBox(height: 3),
                       Text(
                         worker.societyName,
-                        style: const TextStyle(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.primaryBlueLight,
+                          color: isDark ? AppColors.neonCyan : AppColors.neonCyanDark,
                         ),
                       ),
                     ],
@@ -113,7 +143,8 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
                   children: [
                     Switch(
                       value: isOnline,
-                      activeColor: AppColors.successGreenLight,
+                      activeColor: AppColors.neonGreen,
+                      activeTrackColor: AppColors.neonGreen.withValues(alpha: 0.35),
                       onChanged: (val) {
                         ref.read(workerOnlineStatusProvider.notifier).setStatus(val);
                       },
@@ -122,8 +153,9 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
                       isOnline ? 'ONLINE' : 'OFFLINE',
                       style: TextStyle(
                         fontSize: 10,
-                        fontWeight: FontWeight.w800,
-                        color: isOnline ? AppColors.successGreenLight : Colors.grey,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 0.8,
+                        color: isOnline ? AppColors.neonGreen : Colors.grey,
                       ),
                     ),
                   ],
@@ -139,10 +171,10 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
               Expanded(
                 child: _buildStatCard(
                   title: 'e-Shram Pass',
-                  subtitle: 'Aadhaar Verified',
+                  subtitle: 'Aadhaar 2.0 Verified',
                   badge: 'UAN Active',
                   icon: Icons.badge_rounded,
-                  color: AppColors.primaryBlueLight,
+                  color: AppColors.neonCyan,
                   isDark: isDark,
                   onTap: () => _showEShramPassModal(context, worker, isDark),
                 ),
@@ -154,7 +186,7 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
                   subtitle: '₹5 Job Accident Cover',
                   badge: 'Active Policy',
                   icon: Icons.shield_rounded,
-                  color: AppColors.successGreenLight,
+                  color: AppColors.neonGreen,
                   isDark: isDark,
                   onTap: () => _showInsuranceDetails(context, isDark),
                 ),
@@ -163,19 +195,23 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
           ),
           const SizedBox(height: 12),
 
-          // Daily Earnings & Social Security Fund Accumulation
+          // Futuristic Telemetry Row: Daily Earnings & Social Security Fund Accumulation
           Container(
             padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: isDark
-                    ? [const Color(0xFF1E2A4A), const Color(0xFF131D38)]
-                    : [Colors.blue.shade50, Colors.teal.shade50],
-              ),
-              borderRadius: BorderRadius.circular(16),
+              color: isDark ? AppColors.darkCard : Colors.white,
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                width: 1.2,
               ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isDark ? 0.2 : 0.04),
+                  blurRadius: 14,
+                  offset: const Offset(0, 6),
+                ),
+              ],
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -184,21 +220,29 @@ class _WorkerDashboardState extends ConsumerState<WorkerDashboard> {
                   label: "Today's Wage",
                   value: '₹1,240',
                   icon: Icons.account_balance_wallet_rounded,
-                  color: isDark ? Colors.white : AppColors.primaryBlue,
+                  color: isDark ? AppColors.neonCyan : AppColors.lightTextPrimary,
                 ),
-                Container(width: 1, height: 40, color: Colors.grey.withOpacity(0.3)),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                ),
                 _buildMetric(
                   label: 'SS Fund Accrued',
                   value: '₹68',
                   icon: Icons.savings_rounded,
-                  color: AppColors.accentGoldLight,
+                  color: AppColors.neonGold,
                 ),
-                Container(width: 1, height: 40, color: Colors.grey.withOpacity(0.3)),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: (isDark ? AppColors.darkBorder : AppColors.lightBorder),
+                ),
                 _buildMetric(
                   label: 'Completed Gigs',
                   value: '4 Jobs',
                   icon: Icons.check_circle_rounded,
-                  color: AppColors.successGreenLight,
+                  color: AppColors.neonGreen,
                 ),
               ],
             ),
