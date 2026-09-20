@@ -48,7 +48,7 @@ class LiveTrackingScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.sos_rounded, color: AppColors.emergencyRedLight),
             tooltip: 'Emergency SOS',
-            onPressed: () => _showSosDialog(context),
+            onPressed: () => _showSosDialog(context, ref, ticket.id),
           ),
         ],
       ),
@@ -397,6 +397,63 @@ class LiveTrackingScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 14),
 
+                    // Destination Address Bar
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                      decoration: BoxDecoration(
+                        color: (isDark ? AppColors.darkSurface : Colors.grey.shade100),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: isDark ? AppColors.darkBorder : AppColors.lightBorder,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on_rounded,
+                            size: 18,
+                            color: AppColors.emergencyRedLight,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'DESTINATION (PHYSICAL LOCATION)',
+                                  style: TextStyle(
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.8,
+                                    color: AppColors.emergencyRedLight,
+                                  ),
+                                ),
+                                Text(
+                                  ticket.customerAddress,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                  ),
+                                ),
+                                Text(
+                                  'GPS: ${ticket.customerLat.toStringAsFixed(4)}, ${ticket.customerLng.toStringAsFixed(4)}',
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: isDark
+                                        ? AppColors.darkTextSecondary
+                                        : AppColors.lightTextSecondary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 14),
+
                     // Transparent Fair Price Box
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -435,10 +492,10 @@ class LiveTrackingScreen extends ConsumerWidget {
     );
   }
 
-  void _showSosDialog(BuildContext context) {
+  void _showSosDialog(BuildContext context, WidgetRef ref, String ticketId) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
+      builder: (ctx) => AlertDialog(
         title: const Row(
           children: [
             Icon(Icons.warning_amber_rounded, color: AppColors.emergencyRed),
@@ -447,11 +504,11 @@ class LiveTrackingScreen extends ConsumerWidget {
           ],
         ),
         content: const Text(
-          'Emergency SOS will broadcast your current coordinates and active gig ticket to the local police control room, cooperative society safety monitor, and emergency contacts.',
+          'Emergency SOS will broadcast your current physical coordinates and active gig ticket to the local police control room, cooperative society safety monitor, and emergency contacts.\n\nThis incident will also be recorded in your Activity History.',
         ),
         actions: [
           TextButton(
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(ctx).pop(),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
@@ -459,11 +516,15 @@ class LiveTrackingScreen extends ConsumerWidget {
               backgroundColor: AppColors.emergencyRed,
             ),
             onPressed: () {
-              Navigator.of(context).pop();
+              ref.read(activeTicketsProvider.notifier).logSosAlert(
+                    ticketId: ticketId,
+                    note: 'User broadcasted SOS beacon from Live Wayfinding screen',
+                  );
+              Navigator.of(ctx).pop();
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(
                   backgroundColor: AppColors.emergencyRed,
-                  content: Text('🚨 SOS Alert Dispatched to Federation and Emergency Response'),
+                  content: Text('🚨 SOS Alert Dispatched & Recorded in Activity History'),
                 ),
               );
             },

@@ -54,6 +54,10 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Live Device Location Status Card (Real GPS / Physical Address)
+          _buildLiveLocationCard(context, ref, isDark),
+          const SizedBox(height: 14),
+
           // Active Ticket Notification Banner (Links directly to live tracking!)
           if (activeTicket != null) ...[
             _buildActiveTicketBanner(context, activeTicket, isDark),
@@ -482,8 +486,8 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
   void _showBookingModal(BuildContext context, GigService service) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final breakdown = FairPriceBreakdown.calculate(service.basePrice);
-    final addressCtrl = TextEditingController(
-        text: 'Flat 402, Kaveri Apartments, Sector 4, Connaught Place, New Delhi');
+    final currentLoc = ref.read(userLocationProvider);
+    final addressCtrl = TextEditingController(text: currentLoc.address);
     final noteCtrl = TextEditingController();
 
     showModalBottomSheet(
@@ -576,6 +580,8 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
                         notes: noteCtrl.text,
                         isEmergency: _isEmergencyMode,
                         customerAddress: addressCtrl.text,
+                        latitude: currentLoc.latitude,
+                        longitude: currentLoc.longitude,
                       );
                   Navigator.of(ctx).pop();
 
@@ -668,6 +674,111 @@ class _CustomerHomeScreenState extends ConsumerState<CustomerHomeScreen> {
               height: 1.4,
               color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLiveLocationCard(BuildContext context, WidgetRef ref, bool isDark) {
+    final userLocation = ref.watch(userLocationProvider);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: isDark ? AppColors.darkCard : Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: (isDark ? AppColors.primaryBlueLight : AppColors.primaryBlue).withOpacity(0.35),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(isDark ? 0.2 : 0.04),
+            blurRadius: 6,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: AppColors.primaryBlueLight.withOpacity(0.12),
+              shape: BoxShape.circle,
+            ),
+            child: const Icon(
+              Icons.my_location_rounded,
+              color: AppColors.primaryBlueLight,
+              size: 20,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Text(
+                      'CURRENT DEVICE LOCATION',
+                      style: TextStyle(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.8,
+                        color: AppColors.primaryBlueLight,
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        color: AppColors.successGreenLight.withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: const Text(
+                        'LIVE GPS',
+                        style: TextStyle(
+                          fontSize: 9,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.successGreenLight,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  userLocation.address,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                Text(
+                  '${userLocation.latitude.toStringAsFixed(4)}, ${userLocation.longitude.toStringAsFixed(4)} • Local Circle Active',
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: isDark ? AppColors.darkTextSecondary : AppColors.lightTextSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          IconButton(
+            icon: const Icon(Icons.refresh_rounded, size: 20),
+            tooltip: 'Recalibrate Live GPS Location',
+            onPressed: () async {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Detecting physical device coordinates...'),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+              await ref.read(userLocationProvider.notifier).refreshLocation();
+            },
           ),
         ],
       ),

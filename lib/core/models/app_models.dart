@@ -232,3 +232,97 @@ class TicketRequest {
     );
   }
 }
+
+class UserLocation {
+  final double latitude;
+  final double longitude;
+  final String address;
+  final String city;
+  final String state;
+  final String postalCode;
+  final bool isLive;
+
+  const UserLocation({
+    required this.latitude,
+    required this.longitude,
+    required this.address,
+    required this.city,
+    required this.state,
+    required this.postalCode,
+    this.isLive = true,
+  });
+
+  String get shortLabel {
+    if (city.isNotEmpty && state.isNotEmpty) {
+      return '$city, $state';
+    }
+    return address.isNotEmpty ? address : '$latitude, $longitude';
+  }
+
+  UserLocation copyWith({
+    double? latitude,
+    double? longitude,
+    String? address,
+    String? city,
+    String? state,
+    String? postalCode,
+    bool? isLive,
+  }) {
+    return UserLocation(
+      latitude: latitude ?? this.latitude,
+      longitude: longitude ?? this.longitude,
+      address: address ?? this.address,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      postalCode: postalCode ?? this.postalCode,
+      isLive: isLive ?? this.isLive,
+    );
+  }
+}
+
+enum ActivityType {
+  serviceBooked,
+  tripStarted,
+  workerArrived,
+  otpVerified,
+  serviceCompleted,
+  statutoryContribution,
+  sosTriggered,
+  locationUpdated,
+  kycAudited,
+  workerOnlineToggle,
+}
+
+class AppActivity {
+  final String id;
+  final UserRole userRole;
+  final String userName;
+  final ActivityType type;
+  final String title;
+  final String description;
+  final DateTime timestamp;
+  final String locationAddress;
+  final double? latitude;
+  final double? longitude;
+  final String status;
+  final double? amount;
+  final String? ticketId;
+  final Map<String, dynamic>? metadata;
+
+  const AppActivity({
+    required this.id,
+    required this.userRole,
+    required this.userName,
+    required this.type,
+    required this.title,
+    required this.description,
+    required this.timestamp,
+    required this.locationAddress,
+    this.latitude,
+    this.longitude,
+    required this.status,
+    this.amount,
+    this.ticketId,
+    this.metadata,
+  });
+}

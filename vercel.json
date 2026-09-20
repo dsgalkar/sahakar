@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "framework": null,
+  "outputDirectory": "build/web",
+  "buildCommand": "bash vercel-build.sh",
+  "routes": [
+    { "handle": "filesystem" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
+}

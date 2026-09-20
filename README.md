@@ -61,3 +61,50 @@ flutter run
 # Build release bundle for web
 flutter build web --release
 ```
+
+---
+
+## Deploying to Vercel
+
+The project is pre-configured for one-click deployment on Vercel:
+
+### Method 1: Deploy via Vercel Git Integration (Recommended)
+1. Push this repository to **GitHub**:
+   ```bash
+   git add .
+   git commit -m "feat: complete sahakar cooperative platform"
+   git remote add origin https://github.com/<your-username>/sahakar.git
+   git branch -M main
+   git push -u origin main
+   ```
+2. Go to [vercel.com](https://vercel.com) and click **"Add New Project"**.
+3. Import your **`sahakar`** repository.
+4. Vercel automatically detects `vercel.json`, executes `vercel-build.sh`, and serves the output from `build/web`.
+5. Click **Deploy**!
+
+### Method 2: Deploy via Vercel CLI
+```bash
+# Install / run Vercel CLI
+npx vercel
+
+# Deploy production build directly
+npx vercel --prod
+```
+
+---
+
+## Git Workflow
+
+```bash
+# Check status
+git status
+
+# Stage all files
+git add .
+
+# Commit changes
+git commit -m "feat: ready for vercel deployment and live location"
+
+# Push to remote repository
+git push origin main
+```

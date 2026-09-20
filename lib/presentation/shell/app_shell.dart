@@ -8,6 +8,7 @@ import '../auth/login_screen.dart';
 import '../features/admin/admin_dashboard.dart';
 import '../features/customer/customer_home.dart';
 import '../features/customer/live_tracking_screen.dart';
+import '../features/history/activity_history_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/worker/worker_dashboard.dart';
 
@@ -34,16 +35,29 @@ class _AppShellState extends ConsumerState<AppShell> {
 
     switch (currentRole) {
       case UserRole.user:
-        // User only sees the user section
-        availableScreens = [const CustomerHomeScreen()];
-        navItems = []; // No bottom tabs needed for single user view
+        // User sees Services and Activity History tabs
+        availableScreens = [
+          const CustomerHomeScreen(),
+          const ActivityHistoryScreen(),
+        ];
+        navItems = const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home_repair_service_rounded),
+            label: 'Services',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history_rounded),
+            label: 'Activity History',
+          ),
+        ];
         break;
 
       case UserRole.gigWorker:
-        // Gig worker sees User and Gig Worker tabs
+        // Gig worker sees User, Gig Worker, and Work History tabs
         availableScreens = [
           const CustomerHomeScreen(),
           const WorkerDashboard(),
+          const ActivityHistoryScreen(),
         ];
         navItems = const [
           BottomNavigationBarItem(
@@ -52,17 +66,22 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.handyman_rounded),
-            label: 'Gig Worker Portal',
+            label: 'Worker Portal',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history_rounded),
+            label: 'Work History',
           ),
         ];
         break;
 
       case UserRole.admin:
-        // Admin can use all three tabs from home screen
+        // Admin sees all 4 tabs: User, Worker, Admin, Audit History
         availableScreens = [
           const CustomerHomeScreen(),
           const WorkerDashboard(),
           const AdminDashboard(),
+          const ActivityHistoryScreen(),
         ];
         navItems = const [
           BottomNavigationBarItem(
@@ -71,11 +90,15 @@ class _AppShellState extends ConsumerState<AppShell> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.handyman_rounded),
-            label: 'Gig Worker',
+            label: 'Worker',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.admin_panel_settings_rounded),
-            label: 'Admin Governance',
+            label: 'Governance',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.history_edu_rounded),
+            label: 'Audit History',
           ),
         ];
         break;
@@ -151,7 +174,7 @@ class _AppShellState extends ConsumerState<AppShell> {
       ),
 
       // Adaptive Side Navigation Drawer with all proper required options
-      drawer: _buildAppDrawer(context, ref, currentRole, activeTicket, isDark),
+      drawer: _buildAppDrawer(context, ref, currentRole, activeTicket, isDark, availableScreens.length - 1),
 
       // Role-based Screen View
       body: availableScreens[_currentIndex],
@@ -177,6 +200,7 @@ class _AppShellState extends ConsumerState<AppShell> {
     UserRole currentRole,
     TicketRequest? activeTicket,
     bool isDark,
+    int historyIndex,
   ) {
     return Drawer(
       backgroundColor: isDark ? AppColors.darkSurface : Colors.white,
@@ -304,6 +328,16 @@ class _AppShellState extends ConsumerState<AppShell> {
                 );
               },
             ),
+
+          ListTile(
+            leading: const Icon(Icons.history_rounded, color: AppColors.primaryBlueLight),
+            title: const Text('Activity & Audit History'),
+            subtitle: const Text('View recorded logs, GPS breadcrumbs & receipts'),
+            onTap: () {
+              Navigator.of(context).pop();
+              setState(() => _currentIndex = historyIndex);
+            },
+          ),
 
           ListTile(
             leading: const Icon(Icons.gavel_rounded, color: AppColors.accentGoldLight),
