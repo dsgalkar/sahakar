@@ -117,6 +117,21 @@ class UserLocationNotifier extends Notifier<UserLocation> {
     try {
       final loc = await LocationService.fetchCurrentLocation(forceRefresh: forceRefresh);
       state = loc;
+
+      // Automatically sync live coordinates with current user profile if on initial default
+      final user = ref.read(currentUserProvider);
+      if (user.address.contains('Chandrashekhar Agashe Road') || user.latitude == 18.5211) {
+        ref.read(currentUserProvider.notifier).register(
+          user.copyWith(
+            address: loc.address,
+            city: loc.city,
+            state: loc.state,
+            postalCode: loc.postalCode,
+            latitude: loc.latitude,
+            longitude: loc.longitude,
+          ),
+        );
+      }
     } catch (_) {
       // Retain fallback
     }

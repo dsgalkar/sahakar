@@ -4,9 +4,10 @@ import 'package:http/http.dart' as http;
 import '../models/app_models.dart';
 
 class LocationService {
-  static const String _nominatimBaseUrl = 'https://nominatim.openstreetmap.org/reverse';
-  static const String _ipApiUrl = 'http://ip-api.com/json';
-  static const String _ipApiFallbackUrl = 'https://ipapi.co/json';
+  static const String _ipWhoIsUrl = 'https://ipwho.is/';
+  static const String _freeIpApiUrl = 'https://freeipapi.com/api/json';
+  static const String _bigDataCloudUrl = 'https://api.bigdatacloud.net/data/reverse-geocode-client';
+  static const String _nominatimUrl = 'https://nominatim.openstreetmap.org/reverse';
 
   // Cached last known location to avoid repeated network calls
   static UserLocation? _cachedLocation;
@@ -17,23 +18,27 @@ class LocationService {
       return _cachedLocation!;
     }
 
+    // Step 1: Query primary IP geolocation endpoint (https://ipwho.is/ - HTTPS & CORS compliant)
     try {
-      // Step 1: Query primary IP geolocation endpoint
       final response = await http
-          .get(Uri.parse(_ipApiUrl))
-          .timeout(const Duration(seconds: 4));
+          .get(Uri.parse(_ipWhoIsUrl))
+          .timeout(const Duration(seconds: 5));
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        if (data['status'] == 'success') {
-          final lat = (data['lat'] as num).toDouble();
-          final lon = (data['lon'] as num).toDouble();
+        if (data['success'] == true) {
+          final lat = (data['latitude'] as num).toDouble();
+          final lon = (data['longitude'] as num).toDouble();
           final city = data['city']?.toString() ?? 'Pune';
-          final region = data['regionName']?.toString() ?? 'Maharashtra';
-          final zip = data['zip']?.toString() ?? '411001';
+          final region = data['region']?.toString() ?? 'Maharashtra';
+          final zip = data['postal']?.toString() ?? '411001';
 
-          // Try reverse geocoding to get exact street/suburb name
-          final detailedAddress = await _reverseGeocode(lat, lon, fallbackCity: city, fallbackRegion: region);
+          final detailedAddress = await _reverseGeocode(
+            lat,
+            lon,
+            fallbackCity: city,
+            fallbackRegion: region,
+          );
 
           final location = UserLocation(
             latitude: lat,
@@ -50,24 +55,29 @@ class LocationService {
         }
       }
     } catch (_) {
-      // Fall through to fallback endpoint
+      // Fall through to secondary endpoint
     }
 
+    // Step 2: Query secondary IP geolocation endpoint (https://freeipapi.com/api/json - HTTPS & CORS compliant)
     try {
-      // Step 2: Fallback IP geolocation endpoint
       final fallbackResponse = await http
-          .get(Uri.parse(_ipApiFallbackUrl))
-          .timeout(const Duration(seconds: 4));
+          .get(Uri.parse(_freeIpApiUrl))
+          .timeout(const Duration(seconds: 5));
 
       if (fallbackResponse.statusCode == 200) {
         final data = json.decode(fallbackResponse.body);
-        final lat = (data['latitude'] as num?)?.toDouble() ?? 18.5211;
-        final lon = (data['longitude'] as num?)?.toDouble() ?? 73.8502;
-        final city = data['city']?.toString() ?? 'Pune';
-        final region = data['region']?.toString() ?? 'Maharashtra';
-        final zip = data['postal']?.toString() ?? '411001';
+        final lat = (data['latitude'] as num?)?.toDouble() ?? 18.5196;
+        final lon = (data['longitude'] as num?)?.toDouble() ?? 73.8553;
+        final city = data['cityName']?.toString() ?? 'Pune';
+        final region = data['regionName']?.toString() ?? 'Maharashtra';
+        final zip = data['zipCode']?.toString() ?? '411001';
 
-        final detailedAddress = await _reverseGeocode(lat, lon, fallbackCity: city, fallbackRegion: region);
+        final detailedAddress = await _reverseGeocode(
+          lat,
+          lon,
+          fallbackCity: city,
+          fallbackRegion: region,
+        );
 
         final location = UserLocation(
           latitude: lat,
@@ -83,14 +93,14 @@ class LocationService {
         return location;
       }
     } catch (_) {
-      // Ignore and use default real detected city
+      // Fall through to fallback
     }
 
     // Default to last known or detected area (Pune, MH)
     final fallback = const UserLocation(
-      latitude: 18.5211,
-      longitude: 73.8502,
-      address: 'Shaniwar Peth, Pune, Maharashtra 411001',
+      latitude: 18.5196,
+      longitude: 73.8553,
+      address: 'Kasba Peth / Shivaji Road, Pune, Maharashtra 411001',
       city: 'Pune',
       state: 'Maharashtra',
       postalCode: '411001',
@@ -100,18 +110,42 @@ class LocationService {
     return fallback;
   }
 
-  /// Reverse geocodes coordinates to street / neighborhood address via OpenStreetMap Nominatim
+  /// Reverse geocodes coordinates to street / neighborhood address
   static Future<String> _reverseGeocode(
     double lat,
     double lon, {
     required String fallbackCity,
     required String fallbackRegion,
   }) async {
+    // Attempt 1: BigDataCloud Client Reverse Geocoding (HTTPS & CORS friendly for Web)
     try {
-      final uri = Uri.parse('$_nominatimBaseUrl?lat=$lat&lon=$lon&format=json');
-      final res = await http
-          .get(uri, headers: {'User-Agent': 'SahakarCooperativeApp/1.0'})
-          .timeout(const Duration(seconds: 3));
+      final uri = Uri.parse('$_bigDataCloudUrl?latitude=$lat&longitude=$lon&localityLanguage=en');
+      final res = await http.get(uri).timeout(const Duration(seconds: 4));
+
+      if (res.statusCode == 200) {
+        final data = json.decode(res.body);
+        final locality = data['locality']?.toString() ?? '';
+        final city = data['city']?.toString() ?? fallbackCity;
+        final principalSub = data['principalSubdivision']?.toString() ?? fallbackRegion;
+        final country = data['countryName']?.toString() ?? 'India';
+
+        final parts = [locality, city, principalSub, country]
+            .where((s) => s.trim().isNotEmpty)
+            .toSet()
+            .toList();
+
+        if (parts.isNotEmpty) {
+          return parts.join(', ');
+        }
+      }
+    } catch (_) {
+      // Try next
+    }
+
+    // Attempt 2: OpenStreetMap Nominatim (browser safe, no unsafe headers)
+    try {
+      final uri = Uri.parse('$_nominatimUrl?lat=$lat&lon=$lon&format=json');
+      final res = await http.get(uri).timeout(const Duration(seconds: 4));
 
       if (res.statusCode == 200) {
         final data = json.decode(res.body);
@@ -141,8 +175,9 @@ class LocationService {
         }
       }
     } catch (_) {
-      // Reverse geocoding failed or timed out
+      // Return fallback
     }
+
     return '$fallbackCity, $fallbackRegion';
   }
 

@@ -316,7 +316,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         title = 'Customer / User Account';
         desc =
             'Book instant emergency gig support (Electrician, Plumber, Appliance) with verified cooperative society workers.';
-        accessScope = '🔒 App View: User services & live worker en-route tracker only.';
         icon = Icons.home_repair_service_rounded;
         accentColor = AppColors.primaryBlueLight;
         break;
@@ -324,7 +323,6 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         title = 'Sahakar Sathi (Gig Worker)';
         desc =
             'Receive instant ticket alerts, active ₹5 accident insurance, e-Shram portable benefits & 88% direct wage share.';
-        accessScope = '🔓 App View: User Services Tab + Gig Worker Portal Tab.';
         icon = Icons.engineering_rounded;
         accentColor = AppColors.accentGoldLight;
         break;
@@ -332,12 +330,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen>
         title = 'Apex Federation & Society Admin';
         desc =
             'Oversee Social Security Fund compliance (Sec 114 Code on Social Security 2020), worker KYC approval & demand heatmaps.';
-        accessScope = '👑 App View: Full 3-Tab Access (User, Gig Worker & Admin).';
         icon = Icons.account_balance_rounded;
         accentColor = AppColors.successGreenLight;
         break;
     }
-
     return Container(
       padding: const EdgeInsets.all(14),
       decoration: BoxDecoration(

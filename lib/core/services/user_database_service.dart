@@ -14,22 +14,25 @@ class UserDatabaseService {
   static Future<void> init() async {
     if (_initialized) return;
 
-    _prefs = await SharedPreferences.getInstance();
-    final rawData = _prefs?.getString(_usersKey);
+    try {
+      _prefs = await SharedPreferences.getInstance();
+      final rawData = _prefs?.getString(_usersKey);
 
-    if (rawData != null && rawData.isNotEmpty) {
-      try {
+      if (rawData != null && rawData.isNotEmpty) {
         final List<dynamic> jsonList = json.decode(rawData);
         for (final item in jsonList) {
           final user = AppUser.fromJson(item as Map<String, dynamic>);
           _usersCache[user.phone] = user;
         }
-      } catch (_) {
+      } else {
+        _seedDefaultUsers();
+        await _persistUsers();
+      }
+    } catch (_) {
+      // In case of platform channel delay or storage exception on web
+      if (_usersCache.isEmpty) {
         _seedDefaultUsers();
       }
-    } else {
-      _seedDefaultUsers();
-      await _persistUsers();
     }
 
     _initialized = true;
@@ -98,10 +101,12 @@ class UserDatabaseService {
   }
 
   static Future<void> _persistUsers() async {
-    if (_prefs == null) return;
-    final List<Map<String, dynamic>> rawList =
-        _usersCache.values.map((u) => u.toJson()).toList();
-    await _prefs!.setString(_usersKey, json.encode(rawList));
+    try {
+      if (_prefs == null) return;
+      final List<Map<String, dynamic>> rawList =
+          _usersCache.values.map((u) => u.toJson()).toList();
+      await _prefs!.setString(_usersKey, json.encode(rawList));
+    } catch (_) {}
   }
 
   /// Get all registered users in database
@@ -206,23 +211,29 @@ class UserDatabaseService {
 
   /// Save active user session
   static Future<void> saveSession(AppUser user) async {
-    _prefs ??= await SharedPreferences.getInstance();
-    await _prefs?.setString(_sessionKey, user.phone);
+    try {
+      _prefs ??= await SharedPreferences.getInstance();
+      await _prefs?.setString(_sessionKey, user.phone);
+    } catch (_) {}
   }
 
   /// Get active user session
   static AppUser? getSavedSession() {
-    final phone = _prefs?.getString(_sessionKey);
-    if (phone != null && _usersCache.containsKey(phone)) {
-      return _usersCache[phone];
-    }
+    try {
+      final phone = _prefs?.getString(_sessionKey);
+      if (phone != null && _usersCache.containsKey(phone)) {
+        return _usersCache[phone];
+      }
+    } catch (_) {}
     return null;
   }
 
   /// Logout and clear session
   static Future<void> clearSession() async {
-    _prefs ??= await SharedPreferences.getInstance();
-    await _prefs?.remove(_sessionKey);
+    try {
+      _prefs ??= await SharedPreferences.getInstance();
+      await _prefs?.remove(_sessionKey);
+    } catch (_) {}
   }
 
   static String _cleanPhone(String phone) {
