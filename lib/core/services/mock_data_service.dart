@@ -1,0 +1,146 @@
+import '../models/app_models.dart';
+
+class MockDataService {
+  static List<GigService> getAvailableServices() {
+    return const [
+      GigService(
+        id: 'srv_elec_01',
+        name: 'Emergency Power & Fuse Fix',
+        category: 'Electrician',
+        description: 'Instant resolution for tripping MCBs, short-circuits, and main line breakdown.',
+        basePrice: 249.0,
+        estMinutes: 30,
+        iconName: 'bolt',
+        cooperativeSociety: 'Shramik Kalyan Sahakari Mandali Ltd.',
+      ),
+      GigService(
+        id: 'srv_plumb_01',
+        name: 'Urgent Pipe Leak & Tap Overhaul',
+        category: 'Plumber',
+        description: 'High-pressure burst fixing, concealed pipe repair, and mixer tap service.',
+        basePrice: 299.0,
+        estMinutes: 40,
+        iconName: 'water_drop',
+        cooperativeSociety: 'Pune Majdoor Sahakari Sanstha',
+      ),
+      GigService(
+        id: 'srv_app_01',
+        name: 'AC Filter & Refrigerant Health',
+        category: 'Appliance',
+        description: 'Diagnostic performance check, foam jet coil cleanup, and current draw test.',
+        basePrice: 449.0,
+        estMinutes: 45,
+        iconName: 'ac_unit',
+        cooperativeSociety: 'Bhopal Karigar Sahakari Samiti',
+      ),
+      GigService(
+        id: 'srv_care_01',
+        name: 'Elderly Care / Patient Assistance',
+        category: 'Caregiver',
+        description: 'Vitals monitoring, medication adherence, mobility assistance by verified member.',
+        basePrice: 399.0,
+        estMinutes: 120,
+        iconName: 'elderly',
+        cooperativeSociety: 'Mahila Sewa Co-op Labour Society',
+      ),
+      GigService(
+        id: 'srv_clean_01',
+        name: 'Kitchen & Washroom Deep Clean',
+        category: 'Cleaning',
+        description: 'Biodegradable descaling, grease elimination, and steam disinfection.',
+        basePrice: 499.0,
+        estMinutes: 90,
+        iconName: 'cleaning_services',
+        cooperativeSociety: 'Delhi Swachhata Shramik Co-op',
+      ),
+      GigService(
+        id: 'srv_carp_01',
+        name: 'Door Lock & Hinge Stabilization',
+        category: 'Carpenter',
+        description: 'High-security cylinder fitting, door sag rectification, and sliding tracks.',
+        basePrice: 349.0,
+        estMinutes: 45,
+        iconName: 'handyman',
+        cooperativeSociety: 'Vishwakarma Kaushal Sahakari Sangh',
+      ),
+    ];
+  }
+
+  static List<WorkerProfile> getCooperativeWorkers() {
+    return const [
+      WorkerProfile(
+        id: 'wkr_101',
+        name: 'Rameshwar "Ramesh" Kumar',
+        phone: '+91 98101 23456',
+        trade: 'Master Electrician',
+        nsqfLevel: 4,
+        rating: 4.92,
+        completedJobs: 348,
+        eShramUan: '1009-4428-9912',
+        isKycVerified: true,
+        societyName: 'Shramik Kalyan Sahakari Mandali Ltd.',
+        societyRegistrationNo: 'COOP-DL-7721',
+        currentLat: 28.6180,
+        currentLng: 77.2040,
+        vehicleType: 'EV Two-Wheeler (Eco Green)',
+        activeInsuranceCover: true,
+      ),
+      WorkerProfile(
+        id: 'wkr_102',
+        name: 'Sunita Devi',
+        phone: '+91 98203 76543',
+        trade: 'Certified Healthcare Attendant',
+        nsqfLevel: 4,
+        rating: 4.96,
+        completedJobs: 412,
+        eShramUan: '1004-9821-3142',
+        isKycVerified: true,
+        societyName: 'Mahila Sewa Co-op Labour Society',
+        societyRegistrationNo: 'COOP-MH-3382',
+        currentLat: 28.6210,
+        currentLng: 77.2110,
+        vehicleType: 'Metro Transit + E-Rickshaw',
+        activeInsuranceCover: true,
+      ),
+      WorkerProfile(
+        id: 'wkr_103',
+        name: 'Rajesh Shinde',
+        phone: '+91 98450 98112',
+        trade: 'Senior Plumbing Technician',
+        nsqfLevel: 3,
+        rating: 4.88,
+        completedJobs: 289,
+        eShramUan: '1007-8812-4019',
+        isKycVerified: true,
+        societyName: 'Pune Majdoor Sahakari Sanstha',
+        societyRegistrationNo: 'COOP-MH-1029',
+        currentLat: 28.6120,
+        currentLng: 77.2005,
+        vehicleType: 'Two-Wheeler Service Van',
+        activeInsuranceCover: true,
+      ),
+    ];
+  }
+
+  static TicketRequest createSampleActiveTicket() {
+    final worker = getCooperativeWorkers().first;
+    return TicketRequest(
+      id: 'TCK-2026-9041',
+      serviceName: 'Emergency Power & Fuse Fix',
+      category: 'Electrician',
+      customerName: 'Ananya Sharma',
+      customerPhone: '+91 98711 02938',
+      customerAddress: 'Flat 402, Kaveri Apartments, Sector 4, Connaught Place, New Delhi',
+      customerLat: 28.6290,
+      customerLng: 77.2180,
+      assignedWorker: worker,
+      status: TicketStatus.enRoute,
+      startOtp: '4829',
+      requestedAt: DateTime.now().subtract(const Duration(minutes: 8)),
+      estimatedArrivalMinutes: 5,
+      notes: 'Main MCB keeps tripping whenever geyser is turned on. Need urgent inspection.',
+      isEmergency: true,
+      fairPrice: FairPriceBreakdown.calculate(249.0),
+    );
+  }
+}
