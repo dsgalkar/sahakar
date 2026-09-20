@@ -6,12 +6,12 @@ echo "=== Starting Flutter Web Build for Vercel ==="
 # Prevent Git 128 "fatal: detected dubious ownership in repository" in CI/Docker
 git config --global --add safe.directory "*" 2>/dev/null || true
 
-FLUTTER_VERSION="3.29.0"
+FLUTTER_VERSION="${FLUTTER_VERSION:-3.47.1}"
 FLUTTER_DIR="$(pwd)/flutter"
 
-# Check if working flutter binary already exists
-if [ -x "$FLUTTER_DIR/bin/flutter" ]; then
-  echo "=== Existing Flutter SDK found in cache ==="
+# Check if working flutter binary already exists and matches expected version
+if [ -x "$FLUTTER_DIR/bin/flutter" ] && [ -f "$FLUTTER_DIR/version" ] && [ "$(cat "$FLUTTER_DIR/version" | tr -d '\r\n')" = "$FLUTTER_VERSION" ]; then
+  echo "=== Existing Flutter SDK ($FLUTTER_VERSION) found in cache ==="
 else
   echo "=== Installing Flutter SDK ($FLUTTER_VERSION) ==="
   rm -rf "$FLUTTER_DIR" flutter.tar.xz

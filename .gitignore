@@ -50,3 +50,5 @@ app.*.map.json
 # Vercel & CI Flutter Cache
 flutter/
 .vercel/
+.vercel
+.env*
