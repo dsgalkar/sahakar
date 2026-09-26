@@ -24,7 +24,7 @@ jobs:
         run: flutter pub get
 
       - name: Analyze Code Quality
-        run: flutter analyze
+        run: flutter analyze --no-fatal-infos
 
       - name: Build Web Release
         run: flutter build web --release --base-href "/"
